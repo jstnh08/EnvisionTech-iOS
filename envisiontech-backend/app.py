@@ -1,11 +1,13 @@
+import os
+
 from flask import Flask, g, request, jsonify
 from flask_login import LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-
+import os
 
 app = Flask(__name__)
-app.secret_key = "d4120774e2ff2fe808913dbbbdb475b12caf6c95a59ca3fe03797a21db317516"
+app.secret_key = os.getenv("ENVISION_TECH_SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 login_manager = LoginManager()
