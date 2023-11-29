@@ -25,25 +25,44 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(80), nullable=False, unique=True)
+    first_name = db.Column(db.String(20), nullable=False)
+    last_name = db.Column(db.String(20), nullable=False)
+    grade = db.Column(db.Integer, nullable=False)
+
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def index():
-    return 'Welcome to the Flask-Login Example!'
+    return 'Workin'
 
 @ app.route('/register', methods=['POST'])
 def register():
-    json_data = request.get_json()
-    print(json_data)
-    print(request.form)
+    data = request.get_json()
+    print(data)
 
-    username = request.form.get('username')
-    password = request.form.get('password')
-    print(username, password)
+    if User.query.filter_by(username=data['username']).first():
+        message = {"error": "This username already exists."}
+        return jsonify(message), 409
 
-    # hashed_password = bcrypt.generate_password_hash(password)
+    if User.query.filter_by(email=data['email']).first():
+        message = {"error": "This email already exists."}
+        return jsonify(message), 409
+
+    hashed_password = bcrypt.generate_password_hash(data['password'])
+    new_user = User(
+        username=data['username'],
+        password=hashed_password,
+        email=data['email'],
+        first_name=data['firstName'],
+        last_name=data['lastName'],
+        grade=data['grade']
+    )
+    print(new_user )
+    db.session.add(new_user)
+    db.session.commit()
+
     return jsonify({"message": "Received and processed data successfully"})
-    # new_user = User(username=, password=hashed_password)
-    # db.session.add(new_user)
-    # db.session.commit()
 
 app.run(debug=True)
