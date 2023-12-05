@@ -43,12 +43,10 @@ def register():
     print(data)
 
     if User.query.filter_by(username=data['username']).first():
-        message = {"error": "This username already exists."}
-        return jsonify(message), 409
+        return jsonify({"message": "This username already exists."}), 409
 
     if User.query.filter_by(email=data['email']).first():
-        message = {"error": "This email already exists."}
-        return jsonify(message), 409
+        return jsonify({"message": "This email already exists."}), 409
 
     hashed_password = bcrypt.generate_password_hash(data['password'])
     new_user = User(
@@ -64,5 +62,37 @@ def register():
     db.session.commit()
 
     return jsonify({"message": "Received and processed data successfully"})
+
+@ app.route('/units', methods=['GET'])
+def units():
+    return jsonify(
+        [
+            {
+                "name": "Software Fundamentals",
+                "icon": "puzzlepiece.fill",
+                "activated": False
+            },
+            {
+                "name": "Productivity and Design",
+                "icon": "paintbrush.pointed.fill",
+                "activated": False
+            },
+            {
+                "name": "Web Tools",
+                "icon": "bubble.right.fill",
+                "activated": False
+            },
+            {
+                "name": "Organization and Security",
+                "icon": "shield.lefthalf.fill",
+                "activated": False
+            },
+            {
+                "name": "Mobile Solutions",
+                "icon": "iphone.homebutton",
+                "activated": False
+            }
+        ]
+    )
 
 app.run(debug=True)

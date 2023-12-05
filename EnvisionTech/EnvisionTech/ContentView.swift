@@ -20,7 +20,9 @@ struct ContentView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
     
-    private var gradeNames: [Double: String] = [1.0: "1st", 2.0: "2nd", 3.0: "3rd"]
+    private var gradeNames: [Double: String] = [
+        0.0: "Kindergarten", 1.0: "1st Grade", 2.0: "2nd Grade", 3.0: "3rd Grade"
+    ]
     private var courses = [
         ["Web Safety", "lock.shield.fill"],
         ["Coding", "externaldrive.fill"],
@@ -32,9 +34,8 @@ struct ContentView: View {
     @State private var selected = ["Web Safety"]
     
     func change(name: String) {
-        if selected.contains(name) {
-            let index = selected.firstIndex(of: name)
-            selected.remove(at: index!)
+        if let index = selected.firstIndex(of: name) {
+            selected.remove(at: index)
         }
         else {
             selected.append(name)
@@ -72,17 +73,17 @@ struct ContentView: View {
             .scrollContentBackground(.hidden)
             .environment(\.colorScheme, .light)
             
-            let gradeName = grade > 3 ? "\(Int(grade))th Grade" : "\(gradeNames[grade]!) Grade"
+            let gradeName = grade > 3 ? "\(Int(grade))th Grade" : gradeNames[grade]!
             Text(gradeName)
             
             Slider(
                 value: $grade,
-                in: 1...12,
+                in: 0...12,
                 step: 1
             ) {
                 Text("Speed")
             } minimumValueLabel: {
-                Text("1")
+                Text("K")
             } maximumValueLabel: {
                 Text("12")
             }
@@ -165,14 +166,10 @@ struct ContentView: View {
         guard let url = URL(string: "http://127.0.0.1:5000/register") else {
             return
         }
+
+        let parameters = RegisterParameters(username: username, email: email, password: password, firstName: firstName, lastName: lastName, courses: selected, grade: grade)
         
-        let parameters: [String: Any] = [
-            "username": username, "email": email, "password": password,
-            "firstName": firstName, "lastName": lastName, "courses": courses,
-            "grade": grade
-        ]
-        
-        guard let postData = try? JSONSerialization.data(withJSONObject: parameters) else {
+        guard let postData = try? JSONEncoder().encode(parameters) else {
             return
         }
 
@@ -186,8 +183,9 @@ struct ContentView: View {
                 print("Error: \(error)")
                 return
             }
+            guard let data = data else {return}
             
-            guard let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any] else {
+            guard let decodedData = try? JSONDecoder().decode(RegisterResponse.self, from: data) else {
                 return
             }
             
@@ -197,13 +195,23 @@ struct ContentView: View {
                     print("Success!")
                 }
                 else {
-                    let errorMessage = json["error"]! as? String
                     showingAlert = true
-                    alertMessage = errorMessage!
+                    alertMessage = decodedData.message
                 }
             }
         }.resume()
     }
+}
+
+struct RegisterParameters: Codable {
+    let username, email, password, firstName, lastName: String
+    let courses: [String]
+    let grade: Double
+}
+
+
+struct RegisterResponse: Decodable {
+    let message: String
 }
 
 
