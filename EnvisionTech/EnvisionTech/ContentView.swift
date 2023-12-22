@@ -33,6 +33,8 @@ struct ContentView: View {
     
     @State private var selected = ["Web Safety"]
     
+    @State private var navigateToHome = false
+    
     func change(name: String) {
         if let index = selected.firstIndex(of: name) {
             selected.remove(at: index)
@@ -43,102 +45,107 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack {
-            HStack(spacing: 20){
-                Image("logo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 50, height: 50)
+        NavigationStack {
+            VStack {
+                HStack(spacing: 20){
+                    Image("logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 50, height: 50)
+                    
+                    Text("EnvisionTech")
+                        .font(.largeTitle)
+                        .bold()
+                }
                 
-                Text("EnvisionTech")
-                    .font(.largeTitle)
+                Form {
+                    Section(header: Text("Personal Information").foregroundStyle(.white)){
+                        TextField("First Name", text: $firstName)
+                        TextField("Last Name", text: $lastName)
+                    }
+                    
+                    Section(header: Text("User Information").foregroundStyle(.white)){
+                        TextField("Username", text: $username)
+                        TextField("Email", text: $email)
+                        SecureField("Password", text: $password)
+                    }
+                    
+                }
+                
+                .frame(height: 340)
+                .scrollContentBackground(.hidden)
+                .environment(\.colorScheme, .light)
+                
+                let gradeName = grade > 3 ? "\(Int(grade))th Grade" : gradeNames[grade]!
+                Text(gradeName)
+                
+                Slider(
+                    value: $grade,
+                    in: 0...12,
+                    step: 1
+                ) {
+                    Text("Speed")
+                } minimumValueLabel: {
+                    Text("K")
+                } maximumValueLabel: {
+                    Text("12")
+                }
+                .tint(.red)
+                
+                Text("I'm Interested In..")
+                    .font(.title2)
                     .bold()
-            }
-            
-            Form {
-                Section(header: Text("Personal Information").foregroundStyle(.white)){
-                    TextField("First Name", text: $firstName)
-                    TextField("Last Name", text: $lastName)
-                }
-                
-                Section(header: Text("User Information").foregroundStyle(.white)){
-                    TextField("Username", text: $username)
-                    TextField("Email", text: $email)
-                    SecureField("Password", text: $password)
-                }
-                
-            }
-            
-            .frame(height: 340)
-            .scrollContentBackground(.hidden)
-            .environment(\.colorScheme, .light)
-            
-            let gradeName = grade > 3 ? "\(Int(grade))th Grade" : gradeNames[grade]!
-            Text(gradeName)
-            
-            Slider(
-                value: $grade,
-                in: 0...12,
-                step: 1
-            ) {
-                Text("Speed")
-            } minimumValueLabel: {
-                Text("K")
-            } maximumValueLabel: {
-                Text("12")
-            }
-            .tint(.red)
-            
-            Text("I'm Interested In..")
-                .font(.title2)
-                .bold()
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 20) {
-                    ForEach(0..<courses.count, id: \.self) { i in
-                        VStack{
-                            Button (action: {self.change(name: courses[i][0])}){
-                                ZStack{
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .frame(width: 85, height: 85)
-                                    Image(systemName: courses[i][1])
-                                        .font(.title)
-                                        .foregroundStyle(.yellow)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 20) {
+                        ForEach(0..<courses.count, id: \.self) { i in
+                            VStack{
+                                Button (action: {self.change(name: courses[i][0])}){
+                                    ZStack{
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .frame(width: 85, height: 85)
+                                        Image(systemName: courses[i][1])
+                                            .font(.title)
+                                            .foregroundStyle(.yellow)
+                                    }
+                                    .foregroundStyle(.red)
+                                    .opacity(selected.contains(courses[i][0]) ? 1.0 : 0.5)
                                 }
-                                .foregroundStyle(.red)
-                                .opacity(selected.contains(courses[i][0]) ? 1.0 : 0.5)
+                                Text(courses[i][0])
+                                    .font(.subheadline)
+                                    .bold()
                             }
-                            Text(courses[i][0])
-                                .font(.subheadline)
-                                .bold()
                         }
                     }
                 }
-            }
-            
-            Spacer()
-            
-            Button(action: registerUser) {
-                RoundedRectangle(cornerRadius: 10)
-                    .frame(width: 100, height: 50)
-                    .overlay(
-                        Text("Register")
-                            .foregroundStyle(.white)
-                            .bold()
-                            .fontDesign(.rounded)
-                    )
-            }
-            .alert(
-                "Registration Error",
-                isPresented: $showingAlert,
-                actions: { },
-                message: {
-                    Text(alertMessage)
+                
+                Spacer()
+                
+                Button(action: registerUser) {
+                    RoundedRectangle(cornerRadius: 10)
+                        .frame(width: 100, height: 50)
+                        .overlay(
+                            Text("Register")
+                                .foregroundStyle(.white)
+                                .bold()
+                                .fontDesign(.rounded)
+                        )
                 }
-            )
+                .alert(
+                    "Registration Error",
+                    isPresented: $showingAlert,
+                    actions: { },
+                    message: {
+                        Text(alertMessage)
+                    }
+                )
+                .navigationDestination(isPresented: $navigateToHome) {
+                    HomeView()
+                }
+            }
+            .padding()
+            .preferredColorScheme(.dark)
+            .frame(maxHeight: .infinity, alignment: .top)
         }
-        .padding()
-        .preferredColorScheme(.dark)
-        .frame(maxHeight: .infinity, alignment: .top)
     }
     
     func checkValid() -> Bool {
@@ -163,7 +170,7 @@ struct ContentView: View {
     func registerUser() {
         if checkValid() { return }
         
-        guard let url = URL(string: "http://127.0.0.1:5000/register") else {
+        guard let url = URL(string: "http://192.168.0.132:5000/register") else {
             return
         }
 
@@ -192,7 +199,7 @@ struct ContentView: View {
             if let httpResponse = response as? HTTPURLResponse {
                 let statusCode = httpResponse.statusCode
                 if (200..<300).contains(statusCode){
-                    print("Success!")
+                    navigateToHome = true
                 }
                 else {
                     showingAlert = true

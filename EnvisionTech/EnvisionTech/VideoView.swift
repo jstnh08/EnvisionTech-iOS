@@ -15,6 +15,7 @@ struct YouTubeView: UIViewRepresentable {
 
 struct VideoView: View {
     @State private var currentPage = 0
+    @AppStorage("theme") var currtheme: String = "Light"
 
     func setupAppearance() {
         UIPageControl.appearance().currentPageIndicatorTintColor = .red
@@ -50,6 +51,7 @@ See how software crafts our tech experiences, from gaming to messaging. Join us 
             .onAppear {
               setupAppearance()
             }
+            .background(Color("\(currtheme)-background"))
         }
     }
 }
@@ -58,6 +60,8 @@ struct SwipeView: View {
     let videoId: String
     let name: String
     let desc: String?
+    
+    @AppStorage("theme") var currtheme: String = "Light"
     
     @State private var descExpanded = false
     @State private var descDegrees = 0.0
@@ -81,8 +85,8 @@ struct SwipeView: View {
                     Image(systemName: "magnifyingglass")
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
-                .background(.black)
+                .padding(.horizontal)
+                .padding(.vertical, 10)
                 
                 YouTubeView(videoId: videoId)
                     .frame(width: .infinity, height: 215)
@@ -92,7 +96,6 @@ struct SwipeView: View {
                 Text(name)
                     .font(.title)
                     .fontDesign(.rounded)
-                    .foregroundColor(.white)
                     .bold()
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
@@ -101,7 +104,6 @@ struct SwipeView: View {
                 if let desc {
                     ZStack (alignment: .bottomTrailing){
                         Text(desc)
-                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal)
                             .lineLimit(getLineLimit())
                         
@@ -116,11 +118,10 @@ struct SwipeView: View {
                             }
                             .rotationEffect(.degrees(descDegrees))
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
-                
-                Spacer()
-                
-                NavigationLink(destination: SomeView()) {
+                                
+                NavigationLink(destination: PracticeView()) {
                     HStack{
                         Text("Complete Practice Problems")
                             .bold()
@@ -128,27 +129,20 @@ struct SwipeView: View {
                         Image(systemName: "arrowshape.right.fill")
                         
                     }
-                    .foregroundStyle(.yellow)
+                    .foregroundStyle(.accent)
                     .padding(.all, 15)
-                    .background(.red)
-                    .foregroundColor(.white)
+                    .background(Color("\(currtheme)-button"))
                     .cornerRadius(8)
                     
                 }
                 .padding(.top, 15)
                 .padding(.bottom, 65)
                 .frame(maxWidth: .infinity)
-                .background(.black)
             }
+            .foregroundStyle(Color("\(currtheme)-plainText"))
             .frame(maxHeight: .infinity, alignment: .top)
-            .preferredColorScheme(/*@START_MENU_TOKEN@*/.dark/*@END_MENU_TOKEN@*/)
+            .background(Color("\(currtheme)-background"))
         }
-    }
-}
-
-struct SomeView: View {
-    var body: some View {
-        Text("Detailed View Here!")
     }
 }
 

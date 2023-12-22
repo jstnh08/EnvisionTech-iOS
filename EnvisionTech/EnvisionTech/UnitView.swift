@@ -8,50 +8,55 @@
 import SwiftUI
 
 struct TopView: View {
+    @AppStorage("theme") var currtheme: String = "Light"
     var unit: UnitBody
     var index: Int
     
     var body: some View {
-        NavigationLink(destination: VideoView()) {
-            VStack {
-                HStack {
-                    Image(systemName: unit.icon)
-                        .font(.title3)
+        NavigationStack {
+            NavigationLink(destination: VideoView()) {
+                VStack {
+                    HStack {
+                        Image(systemName: unit.icon)
+                            .font(.title3)
+                        
+                        Text("\(index+1): \(unit.name)")
+                            .bold()
+                            .fontDesign(.rounded)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.forward")
+                    }
                     
-                    Text("\(index+1): \(unit.name)")
-                        .bold()
-                        .fontDesign(.rounded)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.forward")
+                    HStack{
+                        let value = Float(9-index+1)/10.0
+                        Text("\(Int(value*100))%")
+                            .bold()
+                            .font(.subheadline)
+                        
+                        ProgressView(value: value)
+                            .tint(Color("\(currtheme)-symbol"))
+                    }
                 }
-                
-                HStack{
-                    let value = Float(9-index+1)/10.0
-                    Text("\(Int(value*100))%")
-                        .bold()
-                        .font(.subheadline)
-                    
-                    ProgressView(value: value)
-                        .tint(.yellow)
-                }
-            }
-            .padding()
-            .background(.red)
-            .clipShape(
-                .rect(
-                    topLeadingRadius: 20,
-                    topTrailingRadius: 20
+                .foregroundStyle(Color("\(currtheme)-buttonText"))
+                .padding()
+                .background(Color("\(currtheme)-button"))
+                .clipShape(
+                    .rect(
+                        topLeadingRadius: 20,
+                        topTrailingRadius: 20
+                    )
                 )
-            )
-            .background(.black)
-            .foregroundStyle(.white)
+                .background(.clear)
+                .foregroundStyle(.white)
+            }
         }
     }
 }
 
 struct BottomView: View {
+    @AppStorage("theme") var currtheme: String = "Light"
     var body: some View {
         VStack (spacing: 5) {
             let videos = ["What is Software?", "Examples of Applications", "Operating Systems"]
@@ -62,7 +67,8 @@ struct BottomView: View {
             }
         }
         .padding(.vertical)
-        .background(.red.opacity(0.8))
+        .background(Color("\(currtheme)-button").opacity(0.2))
+        .foregroundStyle(Color("\(currtheme)-plainText"))
         .clipShape(
             .rect(
                 bottomLeadingRadius: 20,
@@ -75,6 +81,7 @@ struct BottomView: View {
 
 struct UnitView: View {
     @State var units: [UnitBody] = []
+    @AppStorage("theme") var currtheme: String = "Light"
 
     var body: some View {
         NavigationStack {
@@ -88,6 +95,7 @@ struct UnitView: View {
                         .bold()
                 }
                 .frame(maxWidth: .infinity)
+                .foregroundStyle(Color("\(currtheme)-plainText"))
                 .padding(.bottom, 30)
                 
                 ScrollView {
@@ -106,7 +114,7 @@ struct UnitView: View {
                 .scrollIndicators(.hidden)
             }
             .padding()
-            .preferredColorScheme(.dark)
+            .background(Color("\(currtheme)-background"))
             .task({
                 if units.isEmpty {
                     fetchUnits()
@@ -116,7 +124,7 @@ struct UnitView: View {
     }
     
     func fetchUnits(){
-        guard let url = URL(string: "http://127.0.0.1:5000/units") else {
+        guard let url = URL(string: "http://192.168.0.132:5000/units") else {
             return
         }
         
@@ -138,7 +146,6 @@ struct UnitView: View {
 struct UnitBody: Decodable {
     var name: String
     var icon: String
-    var activated: Bool
 }
 
 #Preview {
