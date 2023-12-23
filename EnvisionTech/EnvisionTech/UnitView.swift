@@ -18,9 +18,10 @@ struct TopView: View {
                 VStack {
                     HStack {
                         Image(systemName: unit.icon)
-                            .font(.title3)
+                            .font(.title2)
                         
-                        Text("\(index+1): \(unit.name)")
+                        Text("\(unit.name)")
+                            .font(.title3)
                             .bold()
                             .fontDesign(.rounded)
                         
@@ -41,15 +42,10 @@ struct TopView: View {
                 }
                 .foregroundStyle(Color("\(currtheme)-buttonText"))
                 .padding()
-                .background(Color("\(currtheme)-button"))
-                .clipShape(
-                    .rect(
-                        topLeadingRadius: 20,
-                        topTrailingRadius: 20
-                    )
-                )
-                .background(.clear)
                 .foregroundStyle(.white)
+                .background(Color("\(currtheme)-button"))
+                .clipShape(.rect(topLeadingRadius: 10, topTrailingRadius: 10))
+//                .background(Color("\(currtheme)-background"))
             }
         }
     }
@@ -58,23 +54,25 @@ struct TopView: View {
 struct BottomView: View {
     @AppStorage("theme") var currtheme: String = "Light"
     var body: some View {
-        VStack (spacing: 5) {
+        VStack (spacing: 0) {
+            Divider()
+                .overlay(RoundedRectangle(cornerRadius: 25).fill(.white))
+                .padding(.horizontal)
+            
             let videos = ["What is Software?", "Examples of Applications", "Operating Systems"]
-            ForEach(Array(videos.enumerated()), id: \.offset) { offset, video in
-                Text("      \(String(offset+1)). \(video)")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(2.5)
+            
+            VStack(spacing: 5) {
+                ForEach(Array(videos.enumerated()), id: \.offset) { offset, video in
+                    Text("      \(String(offset+1)). \(video)")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(2.5)
+                }
             }
+            .padding(.vertical)
         }
-        .padding(.vertical)
-        .background(Color("\(currtheme)-button").opacity(0.2))
-        .foregroundStyle(Color("\(currtheme)-plainText"))
-        .clipShape(
-            .rect(
-                bottomLeadingRadius: 20,
-                bottomTrailingRadius: 20
-            )
-        )
+        .background(Color("\(currtheme)-button"))
+        .foregroundStyle(Color("\(currtheme)-buttonText").opacity(0.7))
+        .clipShape(.rect(bottomLeadingRadius: 10, bottomTrailingRadius: 10))
     }
 }
 
@@ -85,36 +83,48 @@ struct UnitView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
-                HStack {
-                    Image(systemName: "network")
-                        .font(.title2)
-
-                    Text("Software & Applications")
-                        .font(.title2)
-                        .bold()
-                }
-                .frame(maxWidth: .infinity)
-                .foregroundStyle(Color("\(currtheme)-plainText"))
-                .padding(.bottom, 30)
-                
-                ScrollView {
-                    LazyVStack(spacing: 35, pinnedViews: .sectionHeaders) {
-                        ForEach(Array(units.enumerated()), id: \.offset) { index, unit in
-                            Section {
-                                BottomView()
-                                    .padding(.top, -35)
-                            } header: {
-                                TopView(unit: unit, index: index)
+            Section {
+                let unitSpacing: CGFloat = 35
+                VStack {
+                    ScrollView {
+                        VStack(spacing: unitSpacing)  {
+                            ForEach(Array(units.enumerated()), id: \.offset) { index, unit in
+                                LazyVStack(spacing: 0, pinnedViews: .sectionHeaders) {
+                                    Section {
+                                        BottomView()
+                                    } header: {
+                                        TopView(unit: unit, index: index)
+                                    }
+                                    .padding(.horizontal)
+                                }
+                                .clipped()
+                                .shadow(color: Color("\(currtheme)-shadow"), radius: 2.0, x: 2, y: 2)
                             }
-                            .padding(.horizontal)
                         }
                     }
+                    .scrollIndicators(.hidden)
                 }
-                .scrollIndicators(.hidden)
+                .padding(.horizontal)
+                .padding(.top, unitSpacing)
+                .background(Color("\(currtheme)-background"))
+                
+            } header: {
+                HStack {
+                    Label {
+                        Text("Software & Applications")
+                            .font(.title2)
+                            .bold()
+                    } icon: {
+                        Image(systemName: "network")
+                            .font(.title2)
+                    }
+                }
+                .foregroundStyle(Color("\(currtheme)-buttonText"))
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color("\(currtheme)-button"))
+                .padding(.bottom, -8)
             }
-            .padding()
-            .background(Color("\(currtheme)-background"))
             .task({
                 if units.isEmpty {
                     fetchUnits()

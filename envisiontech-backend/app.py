@@ -1,5 +1,3 @@
-import os
-
 from flask import Flask, g, request, jsonify
 from flask_login import LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -30,6 +28,10 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(20), nullable=False)
     grade = db.Column(db.Integer, nullable=False)
 
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(200), nullable=False)
+
 with app.app_context():
     db.create_all()
 
@@ -59,6 +61,23 @@ def register():
     )
     print(new_user )
     db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "Received and processed data successfully"})
+
+@ app.route('/comment', methods=['POST'])
+def comment():
+    data = request.get_json()
+    print(data)
+
+    if len(data['text']) >= 20:
+        return jsonify({"error": "Text too long"}), 400
+
+    new_comment = Comment(
+        text=data['text']
+    )
+    print(new_comment )
+    db.session.add(new_comment)
     db.session.commit()
 
     return jsonify({"message": "Received and processed data successfully"})

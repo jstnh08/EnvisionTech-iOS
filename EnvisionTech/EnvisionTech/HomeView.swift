@@ -88,16 +88,16 @@ struct Home: View {
                         ForEach(courses, id: \.name) { course in
                             VStack {
                                 NavigationLink(destination: UnitView()) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 25.0)
-                                            .aspectRatio(contentMode: .fit)
-                                            .foregroundStyle(Color("\(currtheme)-button"))
-                                            .frame(width: 85, height: 85)
-                                        
-                                        Image(systemName: course.icon)
-                                            .font(.title)
-                                            .foregroundStyle(Color("\(currtheme)-symbol"))
-                                    }
+                                    RoundedRectangle(cornerRadius: 25.0)
+                                        .aspectRatio(contentMode: .fit)
+                                        .foregroundStyle(Color("\(currtheme)-button"))
+                                        .frame(width: 85, height: 85)
+                                        .overlay(
+                                            Image(systemName: course.icon)
+                                                .font(.title)
+                                                .foregroundStyle(Color("\(currtheme)-symbol"))
+                                        )
+                                        .shadow(color: Color("\(currtheme)-shadow"), radius: 2.0, x: 2, y: 2)
                                 }
                                 Text(course.name)
                                     .foregroundStyle(Color("\(currtheme)-plainText"))
@@ -118,7 +118,7 @@ struct Home: View {
                 .font(.title)
                 .bold()
                 .padding()
-                .frame(maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             let units = [
                 UnitBody(name: "Software Fundamentals", icon: "puzzlepiece.fill"),
@@ -126,14 +126,10 @@ struct Home: View {
             ]
             ForEach(Array(units.enumerated()), id: \.offset) { offset, unit in
                 TopView(unit: unit, index: offset)
-                    .clipShape(
-                        .rect(
-                            bottomLeadingRadius: 20,
-                            bottomTrailingRadius: 20
-                        )
-                    )
+                    .clipShape(.rect(bottomLeadingRadius: 10, bottomTrailingRadius: 10))
                     .padding(.horizontal)
                     .padding(.vertical, 10)
+                    .shadow(color: Color("\(currtheme)-shadow"), radius: 2.0, x: 2, y: 2)
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
@@ -332,10 +328,7 @@ struct About: View {
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
                                                 .mask(Circle())
-                                                .overlay {
-                                                    Circle().stroke(Color("\(currtheme)-background"), lineWidth: 3)
-                                                }
-                                                .shadow(color: Color(.sRGBLinear, white: currtheme == "Dark" ? 5 : 0, opacity: 0.33), radius: 7)
+                                                .shadow(color: Color("\(currtheme)-shadow").opacity(5.0), radius: 5.0)
                                             
                                             Text(cofounder.name)
                                                 .font(.subheadline)
@@ -427,7 +420,6 @@ struct HomeView: View {
                     
                 }
                 .task({
-//                    Self.storeTheme(theme: .Maroon)
                     if courses.isEmpty {
                         fetchCourses()
                     }

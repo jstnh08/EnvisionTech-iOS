@@ -24,7 +24,7 @@ struct Row: View {
                     RoundedRectangle(cornerRadius: 5)
                         .frame(height: 80)
                         .foregroundStyle(isSelected ? Color("\(currtheme)-symbol") : Color("\(currtheme)-button"))
-                        .shadow(color: Color(.sRGBLinear, white: currtheme == "Dark" ? 0.1: 0, opacity: currtheme == "Dark" ? 0.7: 0.1), radius: 5, x: 10, y: 10)
+                        .shadow(color: Color("\(currtheme)-shadow"), radius: 5, x: 10, y: 10)
                     
                     Text(text)
                         .font(.title2)
