@@ -274,7 +274,7 @@ struct PracticeView: View {
     }
     
     func fetchQuestions() async {
-        guard let url = URL(string: "http://192.168.0.132:5000/practice") else {
+        guard let url = URL(string: "http://172.20.14.240:5000/practice") else {
             return
         }
                 

@@ -38,7 +38,7 @@ class LoginViewModel: ObservableObject {
     }
     
     func registerUser() async {
-        guard let url = URL(string: "http://192.168.0.132:5000/register") else {
+        guard let url = URL(string: "http://127.0.0.1:5000/register") else {
             return
         }
 
@@ -53,19 +53,47 @@ class LoginViewModel: ObservableObject {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = postData
         
-        do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            let decodedData = try JSONDecoder().decode(RegisterResponse.self, from: data)
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                if (200..<300).contains(httpResponse.statusCode) {
-                    navigateToHome = true
-                } else {
-                    alertMessage = decodedData.message
-                }
+        guard let (data, response) = try? await URLSession.shared.data(for: request) else {
+            return
+        }
+        
+        guard let response = response as? HTTPURLResponse else {
+            return
+        }
+        
+        guard response.statusCode == 200 else {
+            if let decodedError = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                alertMessage = decodedError.error
             }
-        } catch {
-            print("Error while \(error)")
+            return
+        }
+        
+        guard let decodedData = try? JSONDecoder().decode(RegisterResponse.self, from: data) else {
+            print("im sad")
+            return
+        }
+        
+        let accessToken = decodedData.access_token.data(using: .utf8)!
+        
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                    kSecAttrService as String: "com.myapp.envisiontech"]
+        
+        let attributes: [String: Any] = [kSecAttrAccount as String: String(decodedData.id),
+                                         kSecValueData as String: accessToken]
+        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        guard status != errSecItemNotFound else {
+            let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                        kSecAttrAccount as String: String(decodedData.id),
+                                        kSecAttrService as String: "com.myapp.envisiontech",
+                                        kSecValueData as String: decodedData.access_token.data(using: .utf8)!]
+            
+            let status = SecItemAdd(query as CFDictionary, nil)
+            guard status == errSecSuccess else {
+                let errorMessage = SecCopyErrorMessageString(status, nil) as String? ?? "Unknown Error"
+                print("Failed to add item: \(errorMessage)")
+                return
+            }
+            return
         }
     }
     
@@ -271,11 +299,14 @@ struct RegisterParameters: Codable {
     let grade: Double
 }
 
-
 struct RegisterResponse: Decodable {
-    let message: String
+    let access_token: String
+    let id: Int
 }
 
+struct User: Codable {
+    var id: Int
+}
 
 #Preview {
     ContentView()

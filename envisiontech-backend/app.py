@@ -3,20 +3,26 @@ from flask_login import LoginManager, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 import os
+from datetime import datetime, timezone, timedelta
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 
 app = Flask(__name__)
 app.secret_key = os.getenv("ENVISION_TECH_SECRET_KEY")
+app.config["JWT_SECRET_KEY"] = os.getenv("ENVISION_TECH_JWT_KEY")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+jwt_manager = JWTManager(app)
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 
 class User(db.Model, UserMixin):
@@ -28,11 +34,41 @@ class User(db.Model, UserMixin):
     last_name = db.Column(db.String(20), nullable=False)
     grade = db.Column(db.Integer, nullable=False)
 
+    likes = db.relationship('Likes', backref='user', lazy=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username
+        }
+
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
     text = db.Column(db.String(200), nullable=False)
+    post_date = db.Column(db.DateTime, nullable=False)
+
+    likes = db.relationship('Likes', backref='comment', lazy=True)
+    replies = db.relationship('Comment', backref='comment', remote_side=id, lazy=True)
+
+    def to_dict(self, user_id):
+        return {
+            "id": self.id,
+            "text": self.text,
+            "post_date": self.post_date.replace(tzinfo=timezone.utc).isoformat(),
+            "count_likes": Likes.query.filter(Likes.comment_id == self.id).count(),
+            "user_liked": bool(Likes.query.filter_by(user_id=user_id, comment_id=self.id).first()),
+            "count_replies": Comment.query.filter(Comment.parent_id == self.id).count(),
+            "parent_id": self.parent_id
+        }
+
+class Likes(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 with app.app_context():
+    # db.drop_all()
     db.create_all()
 
 @app.route('/')
@@ -45,10 +81,10 @@ def register():
     print(data)
 
     if User.query.filter_by(username=data['username']).first():
-        return jsonify({"message": "This username already exists."}), 409
+        return jsonify({"error": "This username already exists."}), 409
 
     if User.query.filter_by(email=data['email']).first():
-        return jsonify({"message": "This email already exists."}), 409
+        return jsonify({"error": "This email already exists."}), 409
 
     hashed_password = bcrypt.generate_password_hash(data['password'])
     new_user = User(
@@ -59,28 +95,92 @@ def register():
         last_name=data['lastName'],
         grade=data['grade']
     )
-    print(new_user )
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "Received and processed data successfully"})
+    access_token = create_access_token(identity=new_user.id)
+    return jsonify({"access_token": access_token, "id": new_user.id})
 
-@ app.route('/comment', methods=['POST'])
+def get_int_arg(request, key, default):
+    arg = request.args.get(key)
+
+    if arg and arg.isdigit():
+        return int(arg)
+    return default
+
+@app.route('/comment', methods=['GET', 'POST'])
+@jwt_required()
 def comment():
-    data = request.get_json()
-    print(data)
+    user_id = get_jwt_identity()
 
-    if len(data['text']) >= 20:
-        return jsonify({"error": "Text too long"}), 400
+    if request.method == "POST":
+        data = request.get_json()
 
-    new_comment = Comment(
-        text=data['text']
+        if len(data['text']) >= 200:
+            return jsonify({"error": "Text too long"}), 400
+
+        new_comment = Comment(
+            parent_id=data.get("parentId"),
+            text=data['text'],
+            post_date=datetime.fromisoformat(data['postDate']),
+        )
+        db.session.add(new_comment)
+        db.session.commit()
+
+        print(new_comment.parent_id)
+        print(new_comment.to_dict(user_id))
+        return [new_comment.to_dict(user_id)]
+
+    else:
+        offset = get_int_arg(request, "offset", 0)
+        snapshot = get_int_arg(request, "snapshot", float("inf"))
+
+        latest_comments = (
+            Comment.query
+            .filter(Comment.id <= snapshot).filter(Comment.parent_id.is_(None))
+            .order_by(Comment.post_date.desc())
+            .limit(10)
+            .offset(offset)
+            .all()
+        )
+
+        print([x.to_dict(user_id) for x in latest_comments])
+        return jsonify([x.to_dict(user_id) for x in latest_comments])
+
+@ app.route('/replies/<int:comment_id>', methods=['GET'])
+@jwt_required()
+def replies(comment_id):
+    user_id = get_jwt_identity()
+
+    latest_replies = (
+        Comment.query
+        .filter(Comment.parent_id == comment_id)
+        .order_by(Comment.post_date.asc())
+        .all()
     )
-    print(new_comment )
-    db.session.add(new_comment)
+
+    return jsonify([x.to_dict(user_id) for x in latest_replies])
+
+
+@ app.route('/like/<int:comment_id>', methods=['POST'])
+@jwt_required()
+def like(comment_id):
+    user_id = get_jwt_identity()
+    existing_like = Likes.query.filter_by(user_id=user_id, comment_id=comment_id).first()
+
+    if existing_like:
+        db.session.delete(existing_like)
+    else:
+        new_like = Likes(
+            user_id=user_id,
+            comment_id=comment_id
+        )
+        db.session.add(new_like)
+
     db.session.commit()
 
-    return jsonify({"message": "Received and processed data successfully"})
+    return jsonify({"message": "OK"})
+
 
 @ app.route('/units', methods=['GET'])
 def units():
