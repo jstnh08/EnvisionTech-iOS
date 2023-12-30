@@ -12,6 +12,9 @@
 		D00397012B1BB04100BAE2E8 /* UnitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D00397002B1BB04100BAE2E8 /* UnitView.swift */; };
 		D024E4CF2B1F083D00CFEA87 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D024E4CE2B1F083D00CFEA87 /* HomeView.swift */; };
 		D024E4D12B21580200CFEA87 /* test.swift in Sources */ = {isa = PBXBuildFile; fileRef = D024E4D02B21580200CFEA87 /* test.swift */; };
+		D048DC462B3F50D8004ABC17 /* WebScraperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D048DC452B3F50D8004ABC17 /* WebScraperService.swift */; };
+		D048DC482B3F512E004ABC17 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = D048DC472B3F512E004ABC17 /* Extensions.swift */; };
+		D048DC4A2B3FAD48004ABC17 /* CommentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D048DC492B3FAD48004ABC17 /* CommentView.swift */; };
 		D04B0C022B15C2E40080965E /* EnvisionTechApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04B0C012B15C2E40080965E /* EnvisionTechApp.swift */; };
 		D04B0C042B15C2E40080965E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04B0C032B15C2E40080965E /* ContentView.swift */; };
 		D04B0C062B15C2E60080965E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D04B0C052B15C2E60080965E /* Assets.xcassets */; };
@@ -26,6 +29,9 @@
 		D00397002B1BB04100BAE2E8 /* UnitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitView.swift; sourceTree = "<group>"; };
 		D024E4CE2B1F083D00CFEA87 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		D024E4D02B21580200CFEA87 /* test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = test.swift; sourceTree = "<group>"; };
+		D048DC452B3F50D8004ABC17 /* WebScraperService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebScraperService.swift; sourceTree = "<group>"; };
+		D048DC472B3F512E004ABC17 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		D048DC492B3FAD48004ABC17 /* CommentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentView.swift; sourceTree = "<group>"; };
 		D04B0BFE2B15C2E40080965E /* EnvisionTech.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EnvisionTech.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D04B0C012B15C2E40080965E /* EnvisionTechApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvisionTechApp.swift; sourceTree = "<group>"; };
 		D04B0C032B15C2E40080965E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -76,6 +82,9 @@
 				D024E4D02B21580200CFEA87 /* test.swift */,
 				D0E199432B2D564E00DA5BBD /* SettingsView.swift */,
 				D0E199452B2FB88300DA5BBD /* BlogView.swift */,
+				D048DC452B3F50D8004ABC17 /* WebScraperService.swift */,
+				D048DC472B3F512E004ABC17 /* Extensions.swift */,
+				D048DC492B3FAD48004ABC17 /* CommentView.swift */,
 			);
 			path = EnvisionTech;
 			sourceTree = "<group>";
@@ -163,9 +172,12 @@
 				D04B0C042B15C2E40080965E /* ContentView.swift in Sources */,
 				D00397012B1BB04100BAE2E8 /* UnitView.swift in Sources */,
 				D024E4CF2B1F083D00CFEA87 /* HomeView.swift in Sources */,
+				D048DC462B3F50D8004ABC17 /* WebScraperService.swift in Sources */,
+				D048DC4A2B3FAD48004ABC17 /* CommentView.swift in Sources */,
 				D04B0C022B15C2E40080965E /* EnvisionTechApp.swift in Sources */,
 				D00396FF2B18214700BAE2E8 /* PracticeView.swift in Sources */,
 				D0E199462B2FB88400DA5BBD /* BlogView.swift in Sources */,
+				D048DC482B3F512E004ABC17 /* Extensions.swift in Sources */,
 				D024E4D12B21580200CFEA87 /* test.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

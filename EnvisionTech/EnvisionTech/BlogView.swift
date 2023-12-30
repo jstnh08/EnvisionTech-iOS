@@ -135,7 +135,7 @@ struct BlogView: View {
     }
     
     func fetchCourses(){
-        guard let url = URL(string: "http://192.168.0.132:5000/blog") else {
+        guard let url = URL(string: "http://192.168.0.134:5000/blog") else {
             return
         }
         

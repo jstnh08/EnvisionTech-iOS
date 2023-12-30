@@ -70,28 +70,62 @@ struct SwipeView: View {
     @State private var unitExpanded = true
     @State private var unitDegrees = 90.0
     
+    @State private var showingComments = false
+    
     func getLineLimit() -> Int? {
         return descExpanded ? nil : 3
     }
-
+    
+    func actionImage(systemName: String) -> some View {
+        Image(systemName: systemName)
+            .font(.title3)
+    }
+    
     var body: some View {
         NavigationStack {
             VStack (spacing: 10) {
-                HStack (spacing: 30){
-                    Label("Software and Applications", systemImage: "network")
-                        .bold()
-                        .font(.title3)
-                    
-                    Image(systemName: "magnifyingglass")
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal)
-                .padding(.vertical, 10)
-                
                 YouTubeView(videoId: videoId)
                     .frame(width: .infinity, height: 215)
                     .clipShape(RoundedRectangle(cornerRadius: 25.0))
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.vertical, 5)
+                
+                HStack {
+                    Group {
+                        HStack {
+                            actionImage(systemName: "hand.thumbsup")
+                            Text("127")
+                                .bold()
+                            Divider()
+                                .frame(width: 1, height: 25)
+                                .overlay(RoundedRectangle(cornerRadius: 5))
+                            actionImage(systemName: "hand.thumbsdown")
+                        }
+                        
+                        Button(action: {showingComments.toggle()}) {
+                            HStack {
+                                actionImage(systemName: "bubble.left")
+                                Text("29")
+                                    .bold()
+                            }
+                        }
+                        .sheet(isPresented: $showingComments) {
+                            CommentView()
+                                .presentationDetents([.fraction(0.8), .large])
+                        }
+                        
+                        actionImage(systemName: "arrowshape.turn.up.forward")
+                        actionImage(systemName: "bookmark")
+                    }
+                    .padding(.vertical, 10)
+                    .padding(.horizontal)
+                    .background(RoundedRectangle(cornerRadius: 25.0).fill(Color("\(currtheme)-button")))
+                }
+                .padding(.horizontal)
+                
+                Divider()
+                    .overlay(Rectangle())
+                    .padding(.vertical)
                 
                 Text(name)
                     .font(.title)

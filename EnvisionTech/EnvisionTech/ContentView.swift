@@ -8,7 +8,7 @@
 import SwiftUI
 import Foundation
 
-class LoginViewModel: ObservableObject {
+@MainActor class LoginViewModel: ObservableObject {
     @Published var firstName: String = ""
     @Published var lastName: String = ""
     
@@ -22,7 +22,9 @@ class LoginViewModel: ObservableObject {
     @Published var revealedSecures: [Focused] = []
     @Published var navigateToHome = false
     
-    func checkValid() async {
+    @Published var alertError: WebError?
+    
+    func checkValid() {
         if username.count < 3 {
             alertMessage = "Minimum of 3 characters required for username"
         }
@@ -33,68 +35,56 @@ class LoginViewModel: ObservableObject {
             alertMessage = "Please enter a valid email address"
         }
         else {
-            await registerUser()
+            registerUser()
         }
     }
     
-    func registerUser() async {
-        guard let url = URL(string: "http://127.0.0.1:5000/register") else {
-            return
-        }
-
-        let parameters = RegisterParameters(username: username, email: email, password: password, firstName: firstName, lastName: lastName, grade: grade)
-                
-        guard let postData = try? JSONEncoder().encode(parameters) else {
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = postData
-        
-        guard let (data, response) = try? await URLSession.shared.data(for: request) else {
-            return
-        }
-        
-        guard let response = response as? HTTPURLResponse else {
-            return
-        }
-        
-        guard response.statusCode == 200 else {
-            if let decodedError = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
-                alertMessage = decodedError.error
-            }
-            return
-        }
-        
-        guard let decodedData = try? JSONDecoder().decode(RegisterResponse.self, from: data) else {
-            print("im sad")
-            return
-        }
-        
-        let accessToken = decodedData.access_token.data(using: .utf8)!
-        
-        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                    kSecAttrService as String: "com.myapp.envisiontech"]
-        
-        let attributes: [String: Any] = [kSecAttrAccount as String: String(decodedData.id),
-                                         kSecValueData as String: accessToken]
-        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
-        guard status != errSecItemNotFound else {
-            let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
-                                        kSecAttrAccount as String: String(decodedData.id),
-                                        kSecAttrService as String: "com.myapp.envisiontech",
-                                        kSecValueData as String: decodedData.access_token.data(using: .utf8)!]
+    func registerUser() {
+        Task {
+            let parameters = RegisterParameters(username: username, email: email, password: password, firstName: firstName, lastName: lastName, grade: grade)
             
+            let result: Result<RegisterResponse, WebError> = await WebScraperService.shared.handleErrors(task: {
+                try await WebScraperService.shared.postComment(
+                    route: "register", parameters: parameters, accessToken: nil
+                )
+            })
+            
+            switch result {
+            case .success(let decodedData):
+                setKeychain(decodedData: decodedData)
+            case .failure(let error):
+                alertMessage = error.error
+                alertError = error
+            }
+        }
+    }
+    
+    func setKeychain(decodedData: RegisterResponse) {
+        let service = "com.myapp.envisiontech"
+        let account = String(decodedData.id)
+        let accessToken = decodedData.accessToken.data(using: .utf8)!
+    
+        let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                    kSecAttrService as String: service]
+
+        let attributes: [String: Any] = [kSecAttrAccount as String: account,
+                                         kSecValueData as String: accessToken]
+        
+        let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        if status == errSecItemNotFound {
+            let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
+                                        kSecAttrAccount as String: account,
+                                        kSecAttrService as String: service,
+                                        kSecValueData as String: accessToken]
+
             let status = SecItemAdd(query as CFDictionary, nil)
             guard status == errSecSuccess else {
                 let errorMessage = SecCopyErrorMessageString(status, nil) as String? ?? "Unknown Error"
                 print("Failed to add item: \(errorMessage)")
                 return
             }
-            return
         }
+        navigateToHome = true
     }
     
     func checkFieldsFilled() -> Bool {
@@ -261,9 +251,7 @@ struct ContentView: View {
     
     func signUpButton() -> some View {
         Button(action: {
-            Task {
-                await loginModel.checkValid()
-            }
+            loginModel.checkValid()
         }) {
             RoundedRectangle(cornerRadius: 50.0)
                 .fill(loginModel.checkFieldsFilled() ? Color("\(currtheme)-symbol") : .gray.opacity(0.7))
@@ -300,7 +288,7 @@ struct RegisterParameters: Codable {
 }
 
 struct RegisterResponse: Decodable {
-    let access_token: String
+    let accessToken: String
     let id: Int
 }
 

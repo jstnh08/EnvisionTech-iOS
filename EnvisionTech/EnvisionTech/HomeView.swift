@@ -367,7 +367,7 @@ struct About: View {
     }
     
     func fetchAbout() {
-        guard let url = URL(string: "http://192.168.0.132:5000/about") else {
+        guard let url = URL(string: "http://192.168.0.134:5000/about") else {
             return
         }
         URLSession.shared.dataTask(with: url) { (data, response, error) in
@@ -463,16 +463,25 @@ struct HomeView: View {
     }
     
     func fetchCourses(){
-        guard let url = URL(string: "http://192.168.0.132:5000/courses") else {
+        guard let url = URL(string: "http://192.168.0.134:5000/courses") else {
+            print("no")
             return
         }
         
         URLSession.shared.dataTask(with: url) { (data, response, error) in
-            if error != nil { return }
+            if error != nil {
+                print("no 2")
+                return
+            }
             
-            guard let data = data else { return }
+            guard let data = data else {
+                print("no 3")
+                return
+            }
             
-            guard let decodedData = try? JSONDecoder().decode([CourseBody].self, from: data) else { return
+            guard let decodedData = try? JSONDecoder().decode([CourseBody].self, from: data) else { 
+                print("no u")
+                return
             }
             
             decodedData.forEach { unit in

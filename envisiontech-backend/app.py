@@ -9,7 +9,7 @@ from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity
 app = Flask(__name__)
 app.secret_key = os.getenv("ENVISION_TECH_SECRET_KEY")
 app.config["JWT_SECRET_KEY"] = os.getenv("ENVISION_TECH_JWT_KEY")
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=5)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 login_manager = LoginManager()
@@ -35,6 +35,7 @@ class User(db.Model, UserMixin):
     grade = db.Column(db.Integer, nullable=False)
 
     likes = db.relationship('Likes', backref='user', lazy=True)
+    comments = db.relationship('Comment', backref='user', lazy=True)
 
     def to_dict(self):
         return {
@@ -47,6 +48,7 @@ class Comment(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
     text = db.Column(db.String(200), nullable=False)
     post_date = db.Column(db.DateTime, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     likes = db.relationship('Likes', backref='comment', lazy=True)
     replies = db.relationship('Comment', backref='comment', remote_side=id, lazy=True)
@@ -59,7 +61,8 @@ class Comment(db.Model):
             "count_likes": Likes.query.filter(Likes.comment_id == self.id).count(),
             "user_liked": bool(Likes.query.filter_by(user_id=user_id, comment_id=self.id).first()),
             "count_replies": Comment.query.filter(Comment.parent_id == self.id).count(),
-            "parent_id": self.parent_id
+            "parent_id": self.parent_id,
+            "user": self.user.to_dict()
         }
 
 class Likes(db.Model):
@@ -78,6 +81,7 @@ def index():
 @ app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
+
     print(data)
 
     if User.query.filter_by(username=data['username']).first():
@@ -123,12 +127,11 @@ def comment():
             parent_id=data.get("parentId"),
             text=data['text'],
             post_date=datetime.fromisoformat(data['postDate']),
+            user_id=user_id
         )
         db.session.add(new_comment)
         db.session.commit()
 
-        print(new_comment.parent_id)
-        print(new_comment.to_dict(user_id))
         return [new_comment.to_dict(user_id)]
 
     else:
@@ -144,7 +147,6 @@ def comment():
             .all()
         )
 
-        print([x.to_dict(user_id) for x in latest_comments])
         return jsonify([x.to_dict(user_id) for x in latest_comments])
 
 @ app.route('/replies/<int:comment_id>', methods=['GET'])
@@ -196,6 +198,7 @@ def units():
 
 @ app.route('/courses', methods=['GET'])
 def courses():
+    print("mr glass")
     return jsonify(
         [
             {"name": "Web Safety", "icon": "lock.shield.fill"},

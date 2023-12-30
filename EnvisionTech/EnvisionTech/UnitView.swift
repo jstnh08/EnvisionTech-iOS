@@ -134,7 +134,7 @@ struct UnitView: View {
     }
     
     func fetchUnits(){
-        guard let url = URL(string: "http://192.168.0.132:5000/units") else {
+        guard let url = URL(string: "http://192.168.0.134:5000/units") else {
             return
         }
         
