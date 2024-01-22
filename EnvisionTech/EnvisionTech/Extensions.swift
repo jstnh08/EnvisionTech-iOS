@@ -26,7 +26,7 @@ extension JSONEncoder {
 
 extension URL {
     static func apiRoute(route: String) throws -> URL {
-        guard let url = URL(string: "http://192.168.0.134:5000/\(route)") else {
+        guard let url = URL(string: "http://127.0.0.1:5000/\(route)") else {
             throw APIError.invalidURL
         }
         return url

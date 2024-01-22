@@ -1,22 +1,34 @@
 import SwiftUI
+import AVKit
 
 struct test: View {
-    @State private var showingComments = false
-    @State private var fraction: CGFloat = 0.78
-    
+
     var body: some View {
-        Button("Show Credits") {
-            showingComments.toggle()
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 50) {
+                ForEach(0..<10) { i in
+                    Image("Justin Hudacsko")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 200, height: 150)
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 25)
+                        )
+                        .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                            content
+                                .scaleEffect(phase.isIdentity ? 1.25 : 1.0)
+                        }
+                }
+            }
+            .scrollTargetLayout()
         }
-        .sheet(isPresented: $showingComments) {
-            CommentView()
-                .presentationDetents([.fraction(fraction)])
-        }
+        .scrollIndicators(.hidden)
+        .scrollTargetBehavior(.viewAligned)
+        .safeAreaPadding(.horizontal, 95)
+        .frame(height: 200)
     }
 }
 
 #Preview {
     test()
 }
-
-

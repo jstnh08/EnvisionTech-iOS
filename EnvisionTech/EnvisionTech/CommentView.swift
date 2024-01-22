@@ -491,7 +491,7 @@ struct CommentView: View {
             route += "&snapshot=\(initialSnapshot)"
         }
         
-        let decodedComments = try await WebScraperService.shared.fetchComments(route: route, accessToken: accessToken)
+        let decodedComments: [CommentResponse] = try await WebScraperService.shared.fetchComments(route: route, accessToken: accessToken)
         
         if decodedComments.count < expectedComments {
             outOfComments = true

@@ -41,7 +41,9 @@ import Foundation
     
     func registerUser() {
         Task {
-            let parameters = RegisterParameters(username: username, email: email, password: password, firstName: firstName, lastName: lastName, grade: grade)
+            let parameters = RegisterParameters(
+                username: username, email: email, password: password
+            )
             
             let result: Result<RegisterResponse, WebError> = await WebScraperService.shared.handleErrors(task: {
                 try await WebScraperService.shared.postComment(
@@ -108,51 +110,67 @@ enum Focused: Hashable {
 }
 
 struct ContentView: View {
-    @AppStorage("theme") var currtheme: String = "Maroon"
     @StateObject var loginModel = LoginViewModel()
     @FocusState private var focusedField: Focused?
         
-    func textField(prompt: String, text: Binding<String>, focused: Focused, autoCapitalization: TextInputAutocapitalization,  isSecure: Bool = false, check: () -> Bool = {true}) -> some View {
-        Group {
-            if isSecure && !loginModel.revealedSecures.contains(focused) {
-                SecureField("", text: text, prompt: Text(prompt).foregroundColor(.white))
-            } else {
-                TextField("", text: text, prompt: Text(prompt).foregroundColor(.white))
-            }
-        }
-        .frame(width: 250, height: 22)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .focused($focusedField, equals: focused)
-        .textInputAutocapitalization(autoCapitalization)
-        .autocorrectionDisabled(true)
-        .font(.headline)
-        .padding()
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color("\(currtheme)-button"))
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(text.wrappedValue.isEmpty ? .clear : check() ? Color("\(currtheme)-symbol") : .gray, lineWidth: 3)
-                if isSecure && !text.wrappedValue.isEmpty {
-                    let index = loginModel.revealedSecures.firstIndex(of: focused)
-                    Button (action: {
-                        focusedField = focused
-                        if let index {
-                            loginModel.revealedSecures.remove(at: index)
-                        } else {
-                            loginModel.revealedSecures.append(focused)
-                        }
-                    }) {
-                        Image(systemName: index != nil ? "eye.slash" : "eye")
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.trailing)
-                    }
+    func textField(prompt: String, text: Binding<String>, focused: Focused, autoCapitalization: TextInputAutocapitalization,  isSecure: Bool = false, systemName: String, check: () -> Bool = {true}) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+//            Text(prompt)
+//                .font(.headline)
+//                .fontDesign(.rounded)
+//                .foregroundStyle(.blue.opacity(0.6))
+            
+            Group {
+                if isSecure && !loginModel.revealedSecures.contains(focused) {
+                    SecureField("", text: text, prompt: Text("Enter \(prompt.lowercased())").foregroundColor(.gray.opacity(0.7)))
+                } else {
+                    TextField("", text: text, prompt: Text("Enter \(prompt.lowercased())").foregroundColor(.gray.opacity(0.7)))
                 }
             }
-        )
-        .shadow(color: Color("\(currtheme)-shadow"), radius: 4, x: 4, y: 4)
-        .onTapGesture {
-            focusedField = focused
+            .frame(width: 250, height: 22)
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.leading)
+            .focused($focusedField, equals: focused)
+            .textInputAutocapitalization(autoCapitalization)
+            .autocorrectionDisabled(true)
+//            .font(.headline)
+            .fontDesign(.rounded)
+            .padding()
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(.white)
+//                        .shadow(radius: 1, x: 1, y: 1)
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(text.wrappedValue.isEmpty ? .gray.opacity(0.3) : check() ? .blue : .gray, lineWidth: 2)
+                    
+                    Image(systemName: systemName)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading)
+                        .foregroundStyle(.gray.opacity(0.7))
+                    
+                    
+                    if isSecure {
+                        let index = loginModel.revealedSecures.firstIndex(of: focused)
+                        Button (action: {
+                            focusedField = focused
+                            if let index {
+                                loginModel.revealedSecures.remove(at: index)
+                            } else {
+                                loginModel.revealedSecures.append(focused)
+                            }
+                        }) {
+                            Image(systemName: index != nil ? "eye.slash" : "eye")
+                                .foregroundStyle(.gray.opacity(0.7))
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                .padding(.trailing)
+                        }
+                    }
+                }
+            )
+            .onTapGesture {
+                focusedField = focused
+            }
         }
         .padding(.horizontal)
     }
@@ -160,84 +178,111 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             Section {
-                VStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 10) {
+                    displayHeader()
+                    
                     ScrollView {
                         displayForm()
-                        gradeChanger()
                         signUpButton()
+                        
+                        HStack(alignment: .center) {
+                            RoundedRectangle(cornerRadius: 5).frame(height: 1)
+                            Text("Or").font(.body.smallCaps())
+                            RoundedRectangle(cornerRadius: 5).frame(height: 1)
+                        }
+                        .foregroundStyle(.gray)
+                        
+                        Button(action: {
+                            loginModel.checkValid()
+                        }) {
+                            RoundedRectangle(cornerRadius: 50.0)
+                                .fill(.gray.opacity(0.3))
+                                .frame(height: 55)
+                                .overlay(
+                                    HStack(spacing: 15) {
+                                        Image("google")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 25)
+                                        Text("Continue with Google")
+                                            .font(.body.smallCaps())
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(Color(white: 0.3))
+                                    }
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.horizontal)
+                                )
+                                .padding()
+                        }
+                                                
+                        NavigationLink(destination: VideoView()) {
+                            Text("Have an account?")
+                                .fontWeight(.medium)
+                                .foregroundStyle(.gray) +
+                            Text(" Sign in")
+                                .foregroundStyle(.blue)
+                                .bold()
+                        }
                     }
                     .scrollIndicators(.hidden)
                 }
-                .foregroundStyle(Color("\(currtheme)-plainText"))
+                .foregroundStyle(.black)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .padding()
-                .background(Color("\(currtheme)-background"))
-            } header: {
-                displayHeader()
             }
             .onTapGesture {
                 focusedField = nil
             }
+            .background(Color(red: 240/255, green: 240/255, blue: 240/255))
         }
     }
     
     func displayHeader() -> some View {
-        HStack {
-            HStack {
-                Image("logo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 35)
-                
-                Text("EnvisionTech")
-                    .font(.title3)
-                    .bold()
-                
-            }
-            .padding(5)
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Register")
+                .foregroundStyle(.blue.opacity(0.8))
+                .font(.largeTitle)
+                .bold()
+            
+            Text("Welcome to EnvisionTech, your free virtual teacher")
+                .font(.callout)
+                .fontWeight(.semibold)
+                .foregroundStyle(.gray.opacity(0.7))
         }
-        .foregroundStyle(Color("\(currtheme)-buttonText"))
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
-        .background(Color("\(currtheme)-button"))
-        .padding(.bottom, -8)
     }
     
     func displayForm() -> some View {
-        VStack(spacing: 10) {
-            displayText(text: "Personal Information")
-            
-            textField(prompt: "First Name", text: $loginModel.firstName, focused: .firstName, autoCapitalization: .words)
-            textField(prompt: "Last Name", text: $loginModel.lastName, focused: .lastName, autoCapitalization: .words)
-            
-            displayText(text: "User Information")
-            
-            textField(prompt: "Email", text: $loginModel.email, focused: .email, autoCapitalization: .never) {
+        VStack(spacing: 20) {
+            textField(prompt: "Email", text: $loginModel.email, focused: .email, autoCapitalization: .never, systemName: "envelope") {
                 let emailChecker = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/
                 return loginModel.email.firstMatch(of: emailChecker) != nil
             }
-            textField(prompt: "Username", text: $loginModel.username, focused: .usernmae, autoCapitalization: .never) {
+            textField(prompt: "Username", text: $loginModel.username, focused: .usernmae, autoCapitalization: .never, systemName: "person") {
                 return loginModel.username.count >= 3
             }
-            textField(prompt: "Password", text: $loginModel.password, focused: .password, autoCapitalization: .never, isSecure: true) {
+            textField(prompt: "Password", text: $loginModel.password, focused: .password, autoCapitalization: .never, isSecure: true, systemName: "lock") {
                 return loginModel.password.count >= 5
             }
         }
+        .padding(.top, 5)
     }
     
     func displayText(text: String) -> some View {
         Text(text)
-            .font(.title)
+            .font(.title2)
             .fontDesign(.rounded)
             .bold()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding([.top, .leading])
+            .padding([.leading])
             .padding(.bottom, 5)
+            .foregroundStyle(.blue.opacity(0.7))
     }
     
     func gradeChanger() -> some View {
         VStack(spacing: 10) {
             Text(loginModel.getGradeName())
+                .foregroundStyle(.blue.opacity(0.5))
                 .font(.title2)
                 .padding(.top)
                 .bold()
@@ -245,8 +290,9 @@ struct ContentView: View {
             Slider(value: $loginModel.grade, in: 0...12, step: 1 ) {
                 Text("Speed")
             } minimumValueLabel: {Text("K")} maximumValueLabel: {Text("12")}
-                .padding(.horizontal)
+                .tint(.blue.opacity(0.5))
         }
+        .padding(.horizontal)
     }
     
     func signUpButton() -> some View {
@@ -254,16 +300,18 @@ struct ContentView: View {
             loginModel.checkValid()
         }) {
             RoundedRectangle(cornerRadius: 50.0)
-                .fill(loginModel.checkFieldsFilled() ? Color("\(currtheme)-symbol") : .gray.opacity(0.7))
-                .frame(height: 60)
+                .fill(.blue)
+                .frame(height: 55)
                 .padding()
                 .overlay(
                     Text("Sign Up")
                         .bold()
-                        .font(.title3.lowercaseSmallCaps())
+                        .font(.body.smallCaps())
+                        .foregroundStyle(.white)
                 )
         }
-        .shadow(color: loginModel.checkFieldsFilled() ? Color("\(currtheme)-shadow") : .clear, radius: 5, x: 10, y: 10)
+        .clipped()
+        .shadow(radius: 5, x: 5, y: 5)
         .disabled(!loginModel.checkFieldsFilled())
         .alert(
             "Registration Error",
@@ -283,8 +331,7 @@ struct ContentView: View {
 }
 
 struct RegisterParameters: Codable {
-    let username, email, password, firstName, lastName: String
-    let grade: Double
+    let username, email, password: String
 }
 
 struct RegisterResponse: Decodable {

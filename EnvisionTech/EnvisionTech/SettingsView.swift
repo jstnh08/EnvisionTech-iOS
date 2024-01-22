@@ -10,11 +10,6 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("theme") var currtheme: String = "Light"
     
-    static func storeTheme(theme: Theme) {
-        UserDefaults.standard.set(theme.rawValue, forKey: "theme")
-        UserDefaults.standard.synchronize()
-    }
-    
     func createButton(name: String) -> some View {
         return Button(action: {
             currtheme = name

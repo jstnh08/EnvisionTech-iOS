@@ -20,9 +20,6 @@ struct BlogTitle: View {
             .minimumScaleFactor(0.01)
             .lineLimit(2)
             .fontWeight(.bold)
-            .fontDesign(.rounded)
-//            .multilineTextAlignment(.center)
-            .fontWidth(.condensed)
     }
 }
 struct BlogHeader: View {
@@ -34,8 +31,10 @@ struct BlogHeader: View {
     
     var body: some View {
         Text(text)
+            .minimumScaleFactor(0.01)
+            .lineLimit(1)
             .fontDesign(.rounded)
-            .font(.title)
+            .font(.title.lowercaseSmallCaps())
             .fontWeight(.semibold)
             .padding(.top)
     }
@@ -44,13 +43,15 @@ struct BlogText: View {
     var text: String
     
     init(_ text: String) {
-        self.text = "    "+text
+        self.text = text
     }
     
     var body: some View {
         Text(text)
-            .font(.system(size: 20))
+            .font(.system(size: 21))
             .fontDesign(.rounded)
+            .lineSpacing(10)
+            .padding(.bottom)
     }
 }
 
@@ -65,15 +66,14 @@ struct BlogDescription: View {
         Text(text)
             .font(.headline)
             .fontWeight(.semibold)
-            .multilineTextAlignment(.center)
             .minimumScaleFactor(0.01)
             .lineLimit(3)
+            .lineSpacing(10)
     }
 }
 
 struct BlogView: View {
     @State private var blog: BlogBody? = nil
-    @AppStorage("theme") var currTheme: String = "Light"
     @State var currentSelection: CoFounderBody? = nil
     
     var body: some View {
@@ -85,34 +85,27 @@ struct BlogView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                         
                         BlogDescription(blog.description)
-                            .padding(.vertical)
                         
-                        VStack(alignment: .center, spacing: 15) {
-                            Divider()
-                                .frame(height: 1.5)
-                                .overlay(RoundedRectangle(cornerRadius: 5))
-                            
-                            (Text("By ") + Text(blog.author.name).foregroundColor(.accentColor))
-                                .bold()
-                                .onTapGesture {
-                                    currentSelection = blog.author
-                                }
-                                .sheet(
-                                    isPresented: Binding<Bool>(
-                                        get: { currentSelection == blog.author },
-                                        set: {_ in }
-                                    ),
-                                    onDismiss: { currentSelection = nil }
-                                ) {
-                                    SheetView(currentSelection: $currentSelection, member: blog.author)
-                                }
-                            Text("December 17, 2023, EnvisionTech Blog")
-                                .fontWeight(.semibold)
-                            
-                            Divider()
-                                .frame(height: 1.5)
-                                .overlay(RoundedRectangle(cornerRadius: 5))
-                        }
+                        Text(blog.author.name).foregroundColor(.blue.opacity(0.6))
+                            .bold()
+                            .font(.body.smallCaps())
+                            .onTapGesture {
+                                currentSelection = blog.author
+                            }
+                            .sheet(
+                                isPresented: Binding<Bool>(
+                                    get: { currentSelection == blog.author },
+                                    set: {_ in }
+                                ),
+                                onDismiss: { currentSelection = nil }
+                            ) {
+                                SheetView(currentSelection: $currentSelection, member: blog.author)
+                            }
+                        
+                        Divider()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                            )
                         
                         ForEach(blog.sections, id: \.header) { section in
                             BlogHeader(section.header)
@@ -120,22 +113,25 @@ struct BlogView: View {
                                 BlogText(paragraph)
                             }
                         }
+                        
+                        Text("Dec. 17, 2023, 9:57 AM PST")
+                            .foregroundStyle(.gray.opacity(0.75))
+                            .font(.caption)
                     }
                 }
                 .task({
                     fetchCourses()
                 })
-                .padding()
-                .foregroundStyle(Color("\(currTheme)-plainText"))
-                
+                .padding()                
             }
-            .background(Color("\(currTheme)-background"))
+            .padding(.horizontal)
+            .background(Color(red: 240/255, green: 240/255, blue: 240/255))
             .scrollIndicators(.hidden)
         }
     }
     
     func fetchCourses(){
-        guard let url = URL(string: "http://192.168.0.134:5000/blog") else {
+        guard let url = URL(string: "http://127.0.0.1:5000/blog") else {
             return
         }
         

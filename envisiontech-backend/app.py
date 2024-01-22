@@ -70,6 +70,12 @@ class Likes(db.Model):
     comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+
+class Video(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
 with app.app_context():
     # db.drop_all()
     db.create_all()
@@ -201,7 +207,7 @@ def courses():
     print("mr glass")
     return jsonify(
         [
-            {"name": "Web Safety", "icon": "lock.shield.fill"},
+            {"name": "Web Safety", "icon": "shield.righthalf.filled"},
             {"name": "Coding", "icon": "externaldrive.fill"},
             {"name": "Game Dev", "icon": "gamecontroller.fill"},
             {"name": "Software", "icon": "network"},

@@ -29,7 +29,7 @@ class WebScraperService {
         return try processResponse(data: data, response: response)
     }
     
-    func fetchComments(route: String, accessToken: String?) async throws -> [CommentResponse] {
+    func fetchComments<T: Decodable>(route: String, accessToken: String?) async throws -> T {
         let url = try URL.apiRoute(route: route)
         
         let request = createRequest(url: url, method: "GET", accessToken: accessToken)
