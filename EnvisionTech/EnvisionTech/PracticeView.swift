@@ -287,7 +287,7 @@ struct PracticeView: View {
     }
     
     func fetchQuestions() async {
-        guard let url = URL(string: "http://127.0.0.1:5000/practice") else {
+        guard let url = URL(string: "http://192.168.0.137:5000/practice") else {
             return
         }
                 
@@ -370,7 +370,7 @@ struct PracticeEndView: View {
             .padding()
             .background(Color(red: 240/255, green: 240/255, blue: 240/255))
             .onAppear {
-                withAnimation(.easeOut(duration: 3.0)) {
+                withAnimation(.easeOut(duration: 2.0)) {
                     quizScore = Double(correct)/Double(correct+incorrect) * 100
                 } completion: {
                     withAnimation(.spring(response: 0.5, dampingFraction: 0.3, blendDuration: 0)) {

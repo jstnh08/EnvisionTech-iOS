@@ -13,101 +13,133 @@ struct HomePageView: View {
     
     var body: some View {
         NavigationStack {
-            Section {
-                VStack {
-//                    Text("Featured Courses")
-//                        .foregroundStyle(Color("\(currtheme)-plainText"))
-//                        .fontDesign(.rounded)
-//                        .font(.title)
-//                        .bold()
-//                        .padding()
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                    
-//                    ScrollView(.horizontal, showsIndicators: false) {
-//                        HStack {
-//                            ForEach(courses, id: \.name) { course in
-//                                VStack {
-//                                    NavigationLink(destination: UnitView()) {
-//                                        RoundedRectangle(cornerRadius: 25.0)
-//                                            .aspectRatio(contentMode: .fit)
-//                                            .foregroundStyle(Color("\(currtheme)-button"))
-//                                            .frame(width: 85, height: 85)
-//                                            .overlay(
-//                                                Image(systemName: course.icon)
-//                                                    .font(.title)
-//                                                    .foregroundStyle(Color("\(currtheme)-symbol"))
-//                                            )
-//                                            .shadow(color: Color("\(currtheme)-shadow"), radius: 2.0, x: 2, y: 2)
-//                                    }
-//                                    Text(course.name)
-//                                        .foregroundStyle(Color("\(currtheme)-plainText"))
-//                                        .fontDesign(.rounded)
-//                                        .font(.headline)
-//                                        .padding(.vertical, 10)
-//                                }
-//                                .padding(5)
-//                            }
-//                        }
-//                        .padding(.horizontal)
-//                    }
-//                    
-//                    Text("Jump Back In")
-//                        .foregroundStyle(Color("\(currtheme)-plainText"))
-//                        .fontDesign(.rounded)
-//                        .font(.title)
-//                        .bold()
-//                        .padding()
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                    
-//                    let units = [
-//                        UnitBody(name: "Software Fundamentals", icon: "puzzlepiece.fill"),
-//                        UnitBody(name: "Web Tools", icon: "bubble.right.fill"),
-//                    ]
-//                    ForEach(Array(units.enumerated()), id: \.offset) { offset, unit in
-//                        TopView(unit: unit, index: offset)
-//                            .clipShape(.rect(bottomLeadingRadius: 10, bottomTrailingRadius: 10))
-//                            .padding(.horizontal)
-//                            .padding(.vertical, 10)
-//                            .shadow(color: Color("\(currtheme)-shadow"), radius: 2.0, x: 2, y: 2)
-//                    }
-                }
-//                .task({
-//                    if courses.isEmpty {
-//                        fetchCourses()
-//                    }
-//                })
-                .frame(maxHeight: .infinity, alignment: .top)
-                .background(Color("\(currtheme)-background"))
-            } header: {
-                HStack {
-                    HStack {
-                        Image("logo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 30, height: 35)
+            VStack(spacing: 0) {
+                Section {
+                    VStack(alignment: .leading, spacing: 25) {
+                        Text("Courses")
+                            .bold()
+                            .font(.title)
+
                         
-                        Text("EnvisionTech")
-                            .font(.title3)
+                        ScrollView(.horizontal) {
+                            LazyHStack(spacing: 0) {
+                                ForEach(0..<5) { i in
+                                    let x: CGFloat = 260
+                                    let y: CGFloat = 250
+                                    
+                                    NavigationLink(destination: UnitView()) {
+                                        RoundedRectangle(cornerRadius: 25.0)
+                                            .fill(Color(red: 240/255, green: 240/255, blue: 240/255))
+                                            .frame(width: x, height: y)
+                                            .shadow(radius: 1, x: 2, y: 2)
+                                            .overlay(
+                                                ZStack {
+                                                    RoundedRectangle(cornerRadius: 25.0)
+                                                        .stroke(.gray, lineWidth: 1)
+                                                        .frame(width: x, height: y)
+                    
+                                                    VStack(alignment: .leading, spacing: 15){
+                                                        Image("pythonn")
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(height: 100)
+                                                            .shadow(radius: 1)
+                    
+                    
+                                                        VStack(alignment: .leading, spacing: 0) {
+                                                            Text("Python")
+                                                                .font(.title2)
+                                                                .fontWeight(.semibold)
+                    
+                                                            Text("9 Units")
+                                                                .font(.body.smallCaps())
+                                                        }
+                                                    }
+                                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                                        .padding(25)
+                                                }
+                                                    .foregroundStyle(.black)
+                                            )
+                                            .padding()
+                                    }
+                                }
+                            }
+                            .frame(height: 280)
+                        }
+                        .padding(-15)
+                        .scrollIndicators(.hidden)
+                        
+                        Text("EnvisionTech Blog")
+                            .bold()
+                            .font(.title)
+                        
+                        HStack {
+                            NavigationLink(destination: BlogView()) {
+                                RoundedRectangle(cornerRadius: 25)
+                                    .fill(Color(red: 240/255, green: 240/255, blue: 240/255))
+                                    .frame(width: 100, height: 100)
+                                    .shadow(radius: 1, x: 2, y: 2)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 25)
+                                            .stroke(.gray)
+                                            .frame(width: 100, height: 100)
+                                            .overlay(
+                                                Image(systemName: "newspaper")
+                                                    .resizable()
+                                                    .foregroundStyle(.blue.opacity(0.8))
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .padding(27)
+                                            )
+                                        )
+                            }
+                                                        
+                            VStack(alignment: .leading) {
+                                Text("Latest Blog Post")
+                                    .foregroundStyle(.gray)
+                                    .font(.callout.smallCaps())
+                                Text("EnvisionTech: More Than an App")
+                                    .lineLimit(2)
+                                    .minimumScaleFactor(0.5)
+                                    .multilineTextAlignment(.leading)
+                                    .font(.title3)
+                                    .bold()
+                                
+                                Spacer()
+                                
+                                Text("Dec. 24, 2023")
+                                    .foregroundStyle(.gray)
+                                    .font(.caption)
+                            }
+                            .foregroundStyle(.black)
+                            .padding(5)
+                        }
+                        .frame(height: 100)
+                    }
+                    .padding(15)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                } header: {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Welcome back, Justin!")
+                            .font(.title)
                             .bold()
                         
+                        HStack(spacing: 0) {
+                            Text("Explore the app or ")
+                                .foregroundStyle(.gray.opacity(0.9))
+                            
+                            NavigationLink(destination: VideoView()) {
+                                Text("jump back in")
+                                    .bold()
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                        
+                        Divider()
                     }
-                    .padding(5)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "bell.fill")
-                        .imageScale(.large)
-                    
-                    NavigationLink(destination: SettingsView()) {
-                        Image(systemName: "gearshape.fill")
-                            .imageScale(.large)
-                    }
-                    
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
                 }
-                .foregroundStyle(Color("\(currtheme)-buttonText"))
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color("\(currtheme)-button"))
+                .background(Color(red: 240/255, green: 240/255, blue: 240/255))
             }
         }
     }

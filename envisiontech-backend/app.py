@@ -30,9 +30,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(80), nullable=False, unique=True)
-    first_name = db.Column(db.String(20), nullable=False)
-    last_name = db.Column(db.String(20), nullable=False)
-    grade = db.Column(db.Integer, nullable=False)
 
     likes = db.relationship('Likes', backref='user', lazy=True)
     comments = db.relationship('Comment', backref='user', lazy=True)
@@ -101,9 +98,6 @@ def register():
         username=data['username'],
         password=hashed_password,
         email=data['email'],
-        first_name=data['firstName'],
-        last_name=data['lastName'],
-        grade=data['grade']
     )
     db.session.add(new_user)
     db.session.commit()
@@ -194,10 +188,10 @@ def like(comment_id):
 def units():
     return jsonify(
         [
-            {"name": "Software Fundamentals", "icon": "puzzlepiece.fill"},
-            {"name": "Productivity and Design", "icon": "paintbrush.pointed.fill"},
+            {"name": "Fundamentals of Software", "icon": "puzzlepiece.fill"},
+            {"name": "Productivity & Design", "icon": "paintbrush.pointed.fill"},
             {"name": "Web Tools", "icon": "bubble.right.fill"},
-            {"name": "Organization and Security", "icon": "shield.lefthalf.fill"},
+            {"name": "Organization", "icon": "shield.lefthalf.fill"},
             {"name": "Mobile Solutions", "icon": "iphone.homebutton"}
         ]
     )

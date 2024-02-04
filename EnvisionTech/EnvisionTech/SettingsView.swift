@@ -7,57 +7,66 @@
 
 import SwiftUI
 
-struct SettingsView: View {
-    @AppStorage("theme") var currtheme: String = "Light"
-    
-    func createButton(name: String) -> some View {
-        return Button(action: {
-            currtheme = name
-        }) {
-            Text(name)
-                .font(.headline)
-                .padding(23)
-                .background(Color("\(name)-background"))
-                .foregroundColor(Color("\(name)-plainText"))
-                .cornerRadius(10)
-                .shadow(color: name == "Dark" ? .white : .black, radius: 3)
-                .fixedSize(horizontal: true, vertical: false)
-        }
-    }
-    
+struct SettingsRowView: View {
+    var name: String
+    var systemName: String
+
+
     var body: some View {
-        Section {
-            VStack {
-                Text("Theme")
+        VStack(alignment: .leading) {
+            HStack(spacing: 15) {
+                Text("")
+                    .padding(.trailing, -15)
+                Image(systemName: systemName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 20, height: 22)
+                    .fontWeight(.semibold)
+                Text(name)
+                    .fontWeight(.medium)
+            }
+            .foregroundStyle(.black.opacity(0.65))
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+struct SettingsView: View {
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                Section {
+                    let rows = [
+                        ["Appearance", "paintbrush"],
+                        ["Privacy & Security", "lock"],
+                        ["About Us", "questionmark.circle"]
+                    ]
+                    
+                    List {
+                        ForEach(rows, id: \.self) { row in
+                            NavigationLink(destination: About()) {
+                                SettingsRowView(name: row[0], systemName: row[1])
+                            }
+                            .listRowBackground(Color(red: 240/255, green: 240/255, blue: 240/255))
+                        }
+                    }
+                    .listStyle(.plain)
+                } header: {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Justin's Settings")
+                            .font(.title)
+                            .bold()
+                        
+                        Text("Update your profile or change app settings")
+                            .foregroundStyle(.gray.opacity(0.9))
+                        
+                        Divider()
+                    }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .foregroundStyle(Color("\(currtheme)-plainText"))
-                    .font(.title)
-                    .fontDesign(.rounded)
-                    .bold()
-                
-                HStack(spacing: 15) {
-                    createButton(name: "Light")
-                    createButton(name: "Dark")
-                    createButton(name: "Maroon")
+                    .padding([.top, .horizontal])
                 }
-                .padding(.horizontal)
+                .background(Color(red: 240/255, green: 240/255, blue: 240/255))
             }
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(Color("\(currtheme)-background"))
-             
-        } header: {
-            HStack {
-                Text("Settings")
-                    .font(.title2)
-                    .bold()
-            }
-            .foregroundStyle(Color("\(currtheme)-buttonText"))
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color("\(currtheme)-button"))
-            .padding(.bottom, -8)
         }
     }
 }

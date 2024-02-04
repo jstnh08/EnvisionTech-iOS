@@ -9,6 +9,8 @@ class CommentViewModel: ObservableObject {
     @Published var text = ""
     @Published var replyingTo: CommentResponse?
     
+    @Published var sheet: Bool = true
+    
     var accessToken: String?
     var userId: Int?
     
@@ -125,7 +127,6 @@ class CommentRowViewModel: ObservableObject {
 struct CommentRowView: View {
     let dateFormatter = RelativeDateTimeFormatter()
     @StateObject private var commentModel: CommentRowViewModel
-    @AppStorage("theme") var currtheme: String = "Maroon"
         
     init(comment: CommentResponse, commentViewModel: CommentViewModel, isReply: Bool = false) {
         _commentModel = StateObject(wrappedValue: CommentRowViewModel(comment: comment, commentViewModel: commentViewModel, isReply: isReply))
@@ -187,14 +188,14 @@ struct CommentRowView: View {
                     HStack(spacing: 5) {
                         Image(systemName: "arrowtriangle.down.fill")
                             .resizable()
-                            .frame(width: 15, height: 10)
+                            .frame(width: 12, height: 8)
                         Text("Show \(commentModel.replyCount) repl\(commentModel.replyCount > 1 ? "ies" : "y")")
-                            .fontWeight(.semibold)
+                            .fontWeight(.medium)
                             .font(.subheadline)
                     }
                 }
                 .buttonStyle(BorderlessButtonStyle())
-                .foregroundStyle(.accent)
+                .foregroundStyle(.gray.opacity(0.8))
 
             } else if commentModel.repliesExpanded {
                 Button(action: {
@@ -207,12 +208,12 @@ struct CommentRowView: View {
                             .resizable()
                             .frame(width: 15, height: 10)
                         Text("Hide replies")
-                            .fontWeight(.semibold)
+                            .fontWeight(.medium)
                             .font(.subheadline)
                     }
                 }
                 .buttonStyle(BorderlessButtonStyle())
-                .foregroundStyle(.accent)
+                .foregroundStyle(.gray.opacity(0.8))
             }
         }
     }
@@ -225,8 +226,8 @@ struct CommentRowView: View {
             }
         }) {
             Text("Reply")
-                .foregroundStyle(.accent)
-                .fontWeight(.semibold)
+                .foregroundStyle(.gray.opacity(0.8))
+                .fontWeight(.medium)
                 .font(.subheadline)
         }
         .buttonStyle(BorderlessButtonStyle())
@@ -235,7 +236,7 @@ struct CommentRowView: View {
     func displayHeart() -> some View {
         VStack(spacing: 5) {
             Image(systemName: commentModel.likedComment ? "heart.fill" : "heart")
-                .foregroundStyle(commentModel.likedComment ? .accent : Color("\(currtheme)-plainText"))
+                .foregroundStyle(commentModel.likedComment ? .blue : .gray)
                 .phaseAnimator([false, true], trigger: commentModel.likedComment) { content, phase in
                     content
                         .offset(y: commentModel.likedComment && phase ? -5 : 0)
@@ -281,9 +282,7 @@ struct CommentView: View {
     @FocusState private var focusedText: Bool
 
     @StateObject var commentViewModel = CommentViewModel()
-    
-    @AppStorage("theme") var currtheme: String = "Maroon"
-    
+        
     var body: some View {
         if let comments {
             VStack(spacing: 0) {
@@ -318,22 +317,22 @@ struct CommentView: View {
                         .listRowSeparator(.hidden)
                     }
                     .listStyle(.plain)
-                    .background(Color("\(currtheme)-background"))
-                    .foregroundStyle(Color("\(currtheme)-plainText"))
+                    .background(Color(red: 240/255, green: 240/255, blue: 240/255))
+                    .foregroundStyle(.black.opacity(0.9))
                 } header: {
-                    VStack {
-                        Text("Comments")
-                            .font(.title2)
-                            .padding()
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("EnvisionTech Forum")
+                            .font(.title)
                             .bold()
                         
+                        Text("Create a post or interact with others")
+                            .foregroundStyle(.gray.opacity(0.9))
+                        
                         Divider()
-                            .frame(maxWidth: .infinity)
-                            .overlay(Rectangle())
                     }
-                    .foregroundStyle(Color("\(currtheme)-buttonText"))
-                    .frame(maxWidth: .infinity)
-                    .background(Color("\(currtheme)-button"))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(Color(red: 240/255, green: 240/255, blue: 240/255))
                     
                 } footer: {
                     VStack {
@@ -365,7 +364,8 @@ struct CommentView: View {
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding()
-                                .background(Color("\(currtheme)-symbol"))
+                                .background(Color(red:57/255,green:150/255,blue:251/255))
+                                .foregroundStyle(.white)
                                 .padding(.bottom)
                                 .offset(y: commentViewModel.replyingTo != nil ? -85 : 0)
                             }
@@ -375,7 +375,8 @@ struct CommentView: View {
                                 Divider()
                                     .overlay(
                                         Rectangle()
-                                            .fill(Color("\(currtheme)-buttonText"))
+                                            .fill(.blue)
+                                            .frame(height: 1.5)
                                     )
                                     .padding(.bottom, 10)
                                 
@@ -386,16 +387,16 @@ struct CommentView: View {
                                         .clipShape(Circle())
                                         .frame(width: 50, height: 50)
                                     
-                                    TextField("", text: $commentViewModel.text, prompt: Text("Add a comment...").foregroundStyle(.white))
+                                    TextField("", text: $commentViewModel.text, prompt: Text("Add a comment...").foregroundStyle(.black.opacity(0.8)))
                                         .focused($focusedText)
-                                        .font(.headline)
+                                        .fontWeight(.medium)
                                         .frame(width: 250, height: 50)
                                         .padding(.leading)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .background(
                                             ZStack {
                                                 RoundedRectangle(cornerRadius: 30)
-                                                    .stroke(.accent, lineWidth: 2)
+                                                    .stroke(.blue.opacity(0.8), lineWidth: 2)
                                                     .frame(height: 50)
                                                 
                                                 if !commentViewModel.text.isEmpty {
@@ -425,23 +426,22 @@ struct CommentView: View {
                                                     }) {
                                                         Image(systemName: "arrow.up")
                                                             .bold()
+                                                            .foregroundStyle(.blue.opacity(0.8))
                                                     }
                                                     .frame(maxWidth: .infinity, alignment: .trailing)
                                                     .padding(.trailing)
                                                 }
                                             }
                                         )
-                                        .background(Color("\(currtheme)-button"))
                                         .onTapGesture {
                                             focusedText = true
                                         }
                                 }
                                 .padding()
                             }
-                            .background(Color("\(currtheme)-button"))
+                            .background(Color(red: 240/255, green: 240/255, blue: 240/255))
                         }
                     }
-                    .foregroundStyle(Color("\(currtheme)-buttonText"))
                 }
                 .onTapGesture {
                     focusedText = false

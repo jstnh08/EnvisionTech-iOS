@@ -23,7 +23,7 @@ struct CourseView: View {
                                         .frame(height: 100)
                                     
                                     HStack {
-                                        NavigationLink(destination: VideoView()     .navigationBarBackButtonHidden(true)) {
+                                        NavigationLink(destination: VideoView() ) {
                                             Image(systemName: "play.fill")
                                                 .font(.title2)
                                                 .shadow(radius: 10)
@@ -55,7 +55,7 @@ struct CourseView: View {
                                 }
                                 .padding(.horizontal)
                                 .clipped()
-                                .shadow(radius: 5, x: 5, y: 5)
+                                .shadow(radius: 2, x: 4, y: 4)
                             }
                         }
                     }

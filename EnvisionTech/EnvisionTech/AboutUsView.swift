@@ -140,95 +140,96 @@ struct About: View {
     
     var body: some View {
         NavigationStack {
-            VStack(spacing: 15) {
-                VStack(alignment: .leading, spacing: 15) {
-                    aboutTitle("Our Mission")
-                    accentLine()
+            ScrollView {
+                VStack(spacing: 15) {
+                    VStack(alignment: .leading, spacing: 15) {
+                        aboutTitle("Our Mission")
+                        accentLine()
+                        
+                        aboutText("At EnvisionTech, we're on a mission to foster digital literacy in our community, one class at a time. We believe that everyone deserves a free, quality, education and we're here to deliver them one.")
+                        
+                        aboutText("Our expert instructors are all highly knowledgeable in the sectors that they teach, whether that be computer science, mathematics, or general computer skills.")
+                            .padding(.bottom, 20)
+                        
+                        aboutTitle("Meet the Team")
+                        accentLine()
+                    }
+                    .foregroundStyle(.black.opacity(0.8))
+                    .padding([.top, .horizontal])
+                    .padding(.horizontal)
                     
-                    aboutText("At EnvisionTech, we're on a mission to foster digital literacy in our community, one class at a time. We believe that everyone deserves a free, quality, education and we're here to deliver them one.")
-                    
-                    aboutText("Our expert instructors are all highly knowledgeable in the sectors that they teach, whether that be computer science, mathematics, or general computer skills.")
-                        .padding(.bottom, 20)
-                    
-                    aboutTitle("Meet the Team")
-                    accentLine()
-                }
-                .foregroundStyle(.black.opacity(0.8))
-                .padding([.top, .horizontal])
-                .padding(.horizontal)
-                
-                ScrollView(.horizontal) {
-                    LazyHStack(spacing: 60) {
-                        ForEach(Array(cofounders.enumerated()), id: \.offset) { i, cofounder in
-                            Button(action: {
-                                currentSelection = cofounder
-                            }) {
-                                Image(cofounder.name)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 200, height: 150)
-                                    .clipShape(
-                                        RoundedRectangle(cornerRadius: 25)
-                                    )
-                                    .overlay(
-                                        ZStack(alignment: .bottomLeading) {
+                    ScrollView(.horizontal) {
+                        LazyHStack(spacing: 60) {
+                            ForEach(Array(cofounders.enumerated()), id: \.offset) { i, cofounder in
+                                Button(action: {
+                                    currentSelection = cofounder
+                                }) {
+                                    Image(cofounder.name)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 200, height: 150)
+                                        .clipShape(
                                             RoundedRectangle(cornerRadius: 25)
-                                                .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]), startPoint: .bottom, endPoint: .top))
-                                                .opacity(0.5)
-                                            
-                                            VStack(alignment: .leading) {
-                                                Text("\(cofounder.name)")
-                                                    .bold()
+                                        )
+                                        .overlay(
+                                            ZStack(alignment: .bottomLeading) {
+                                                RoundedRectangle(cornerRadius: 25)
+                                                    .fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]), startPoint: .bottom, endPoint: .top))
+                                                    .opacity(0.5)
                                                 
-                                                Text(cofounder.position.split(separator: "and")[0])
-                                                    .font(.footnote.smallCaps())
+                                                VStack(alignment: .leading) {
+                                                    Text("\(cofounder.name)")
+                                                        .bold()
+                                                    
+                                                    Text(cofounder.position.split(separator: "and")[0])
+                                                        .font(.footnote.smallCaps())
+                                                }
+                                                .padding(.leading)
+                                                .padding(.bottom, 5)
+                                                .foregroundStyle(.white)
                                             }
-                                            .padding(.leading)
-                                            .padding(.bottom, 5)
-                                            .foregroundStyle(.white)
+                                        )
+                                        .scrollTransition(.animated, axis: .horizontal) { content, phase in
+                                            content
+                                                .scaleEffect(phase.isIdentity ? 1.25 : 1.0)
                                         }
-                                    )
-                                    .scrollTransition(.animated, axis: .horizontal) { content, phase in
-                                        content
-                                            .scaleEffect(phase.isIdentity ? 1.25 : 1.0)
-                                    }
-                                    .sheet(
-                                        isPresented: Binding<Bool>(
-                                            get: { currentSelection == cofounder },
-                                            set: {_ in }
-                                        ),
-                                        onDismiss: { currentSelection = nil }
-                                    ) {
-                                        SheetView(currentSelection: $currentSelection, member: cofounder)
-                                    }
+                                        .sheet(
+                                            isPresented: Binding<Bool>(
+                                                get: { currentSelection == cofounder },
+                                                set: {_ in }
+                                            ),
+                                            onDismiss: { currentSelection = nil }
+                                        ) {
+                                            SheetView(currentSelection: $currentSelection, member: cofounder)
+                                        }
+                                }
                             }
                         }
+                        .scrollTargetLayout()
                     }
-                    .scrollTargetLayout()
-                }
-                .scrollIndicators(.hidden)
-                .scrollTargetBehavior(.viewAligned)
-                .safeAreaPadding(.horizontal, 57.5)
-                .frame(height: 200)
-                
-                Spacer()
-                                
-                let socials = ["youtube", "instagram", "discord"]
-                VStack(alignment: .leading, spacing: 15) {
-                    HStack(spacing: 15) {
-                        ForEach(socials, id: \.self) { social in
-                            SocialMediaButton(image: Image(social))
+                    .scrollIndicators(.hidden)
+                    .scrollTargetBehavior(.viewAligned)
+                    .safeAreaPadding(.horizontal, 57.5)
+                    .frame(height: 200)
+                    
+                    Spacer()
+                                    
+                    let socials = ["youtube", "instagram", "discord"]
+                    VStack(alignment: .leading, spacing: 15) {
+                        HStack(spacing: 15) {
+                            ForEach(socials, id: \.self) { social in
+                                SocialMediaButton(image: Image(social))
+                            }
+                            SocialMediaButton(image: Image(systemName: "globe"))
+                            
+                            
                         }
-                        SocialMediaButton(image: Image(systemName: "globe"))
-                        
-                        
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding([.horizontal, .bottom])
+                    .padding(.horizontal)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding([.horizontal, .bottom])
-                .padding(.horizontal)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
             .background(Color(red: 240/255, green: 240/255, blue: 240/255))
         }
         .task({
@@ -236,7 +237,6 @@ struct About: View {
                 fetchAbout()
             }
         })
-        .frame(maxHeight: .infinity)
     }
     
     struct SocialMediaButton: View {
@@ -266,7 +266,7 @@ struct About: View {
     }
     
     func fetchAbout() {
-        guard let url = URL(string: "http://127.0.0.1:5000/about") else {
+        guard let url = URL(string: "http://192.168.0.137:5000/about") else {
             return
         }
         URLSession.shared.dataTask(with: url) { (data, response, error) in

@@ -7,75 +7,6 @@
 
 import SwiftUI
 
-struct TopView: View {
-    @AppStorage("theme") var currtheme: String = "Light"
-    var unit: UnitBody
-    var index: Int
-    
-    var body: some View {
-        NavigationStack {
-            NavigationLink(destination: VideoView()) {
-                VStack {
-                    HStack {
-                        Image(systemName: unit.icon)
-                            .font(.title2)
-                        
-                        Text("\(unit.name)")
-                            .font(.title3)
-                            .bold()
-                            .fontDesign(.rounded)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.forward")
-                    }
-                    
-                    HStack{
-                        let value = Float(9-index+1)/10.0
-                        Text("\(Int(value*100))%")
-                            .bold()
-                            .font(.subheadline)
-                        
-                        ProgressView(value: value)
-                            .tint(Color("\(currtheme)-symbol"))
-                    }
-                }
-                .foregroundStyle(Color("\(currtheme)-buttonText"))
-                .padding()
-                .foregroundStyle(.white)
-                .background(Color("\(currtheme)-button"))
-                .clipShape(.rect(topLeadingRadius: 10, topTrailingRadius: 10))
-//                .background(Color("\(currtheme)-background"))
-            }
-        }
-    }
-}
-
-struct BottomView: View {
-    @AppStorage("theme") var currtheme: String = "Light"
-    var body: some View {
-        VStack (spacing: 0) {
-            Divider()
-                .overlay(RoundedRectangle(cornerRadius: 25).fill(.white))
-                .padding(.horizontal)
-            
-            let videos = ["What is Software?", "Examples of Applications", "Operating Systems"]
-            
-            VStack(spacing: 5) {
-                ForEach(Array(videos.enumerated()), id: \.offset) { offset, video in
-                    Text("      \(String(offset+1)). \(video)")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(2.5)
-                }
-            }
-            .padding(.vertical)
-        }
-        .background(Color("\(currtheme)-button"))
-        .foregroundStyle(Color("\(currtheme)-buttonText").opacity(0.7))
-        .clipShape(.rect(bottomLeadingRadius: 10, bottomTrailingRadius: 10))
-    }
-}
-
 
 struct UnitBlock: View {
     var video: String
@@ -136,20 +67,72 @@ struct UnitView: View {
                 Section {
                     let videos = ["Fundamentals", "Productivity","Web Tools","Organization","Mobile Builds"] // abridged names
                     
+                        
                     ScrollView {
-                        VStack(spacing: 15) {
-                            LazyVGrid(columns: [GridItem(), GridItem()], spacing: 15) {
-                                ForEach(Array(videos.enumerated()), id: \.offset) { i, value in
+                        VStack(spacing: 0) {
+                            ForEach(Array(units.enumerated()), id: \.offset) { i, unit in
+                                HStack {
+                                    VStack(spacing: 0) {
+                                        Rectangle()
+                                            .fill(i == 0 ? .clear : .gray.opacity(0.5))
+                                            .frame(width: 1.5)
+
+                                        Circle()
+                                            .fill(.blue.opacity(0.8))
+                                            .frame(width: 35, height: 35)
+                                            .shadow(radius: 5)
+                                            .overlay(
+                                                Text("\(i+1)")
+                                                    .foregroundStyle(.white)
+                                                    .bold()
+                                            )
+                                            .padding(.vertical, 2)
+                                        
+                                        Rectangle()
+                                            .fill(i == videos.count-1 ? .clear : .gray.opacity(0.5))
+                                            .frame(width: 1.5)
+                                    }
+                                    
                                     NavigationLink(destination: CourseView()) {
-                                        UnitBlock(video: value, index: i)
+                                        RoundedRectangle(cornerRadius: 25)
+                                            .fill(.white)
+                                            .frame(height: 160)
+                                            .shadow(radius: 2, x: 2, y: 2)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 25)
+                                                    .stroke(.gray, lineWidth: 1)
+                                            )
+                                            .overlay(
+                                                ZStack(alignment: .bottomTrailing) {
+                                                    VStack(alignment: .leading) {
+                                                        Text(unit.name)
+                                                            .multilineTextAlignment(.leading)
+                                                            .bold()
+                                                            .font(.title2)
+                                                            .foregroundStyle(.black)
+                                                        
+                                                        Text("6 videos")
+                                                            .foregroundStyle(.gray.opacity(0.8))
+                                                            .font(.body.smallCaps())
+                                                    }
+                                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                                    
+                                                    Image(systemName: "wrench.and.screwdriver")
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fit)
+                                                        .frame(width: 50)
+                                                        .foregroundStyle(.blue.opacity(0.6))
+                                                }
+                                                    .padding()
+                                                    .padding()
+                                            )
+                                            .padding()
                                     }
                                 }
+                                .padding(.horizontal)
+                                .padding(.leading)
                             }
                         }
-                        .ignoresSafeArea()
-                        .padding()
-                        .frame(maxHeight: .infinity)
-                        .background(Color(red: 240/255, green: 240/255, blue: 240/255))
                     }
                     .background(Color(red: 240/255, green: 240/255, blue: 240/255))
                 } header: {
@@ -201,7 +184,7 @@ struct UnitView: View {
     }
     
     func fetchUnits(){
-        guard let url = URL(string: "http://127.0.0.1:5000/units") else {
+        guard let url = URL(string: "http://192.168.0.137:5000/units") else {
             return
         }
         

@@ -90,7 +90,7 @@ import Foundation
     }
     
     func checkFieldsFilled() -> Bool {
-        return !(firstName.isEmpty || lastName.isEmpty || username.isEmpty || email.isEmpty || password.isEmpty)
+        return !(username.isEmpty || email.isEmpty || password.isEmpty)
     }
     
     func getGradeName() -> String {
@@ -130,6 +130,7 @@ struct ContentView: View {
             .frame(width: 250, height: 22)
             .frame(maxWidth: .infinity, alignment: .center)
             .padding(.leading)
+            .padding(.leading)
             .focused($focusedField, equals: focused)
             .textInputAutocapitalization(autoCapitalization)
             .autocorrectionDisabled(true)
@@ -137,16 +138,15 @@ struct ContentView: View {
             .fontDesign(.rounded)
             .padding()
             .background(
-                ZStack {
+                ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(.white)
-//                        .shadow(radius: 1, x: 1, y: 1)
+                    
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(text.wrappedValue.isEmpty ? .gray.opacity(0.3) : check() ? .blue : .gray, lineWidth: 2)
+                        .stroke(text.wrappedValue.isEmpty ? .gray.opacity(0.3) : check() ? .blue : .gray, lineWidth: 1.5)
                     
                     Image(systemName: systemName)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading)
+                        .frame(width: 50)
                         .foregroundStyle(.gray.opacity(0.7))
                     
                     
@@ -164,6 +164,7 @@ struct ContentView: View {
                                 .foregroundStyle(.gray.opacity(0.7))
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                                 .padding(.trailing)
+                                .fontWeight(.light)
                         }
                     }
                 }
@@ -311,8 +312,7 @@ struct ContentView: View {
                 )
         }
         .clipped()
-        .shadow(radius: 5, x: 5, y: 5)
-        .disabled(!loginModel.checkFieldsFilled())
+        .shadow(radius: 2, x: 3, y: 3)
         .alert(
             "Registration Error",
             isPresented: .init(get: {!loginModel.alertMessage.isEmpty}, set: {_ in}),

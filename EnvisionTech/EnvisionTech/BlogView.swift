@@ -48,7 +48,7 @@ struct BlogText: View {
     
     var body: some View {
         Text(text)
-            .font(.system(size: 21))
+            .font(.system(size: 19))
             .fontDesign(.rounded)
             .lineSpacing(10)
             .padding(.bottom)
@@ -131,7 +131,7 @@ struct BlogView: View {
     }
     
     func fetchCourses(){
-        guard let url = URL(string: "http://127.0.0.1:5000/blog") else {
+        guard let url = URL(string: "http://192.168.0.137:5000/blog") else {
             return
         }
         

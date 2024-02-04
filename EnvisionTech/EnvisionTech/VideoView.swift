@@ -5,7 +5,6 @@ import AVKit
 
 struct VideoView: View {
     @State private var currentPage = 0
-    @AppStorage("theme") var currtheme: String = "Light"
     
     @State var player = AVPlayer(url: Bundle.main.url(forResource: "intro software&apps 1", withExtension: "mp4")!)
     @State var isPlaying: Bool = false
@@ -67,10 +66,8 @@ struct SwipeView: View {
     let name: String
     let desc: String?
     
-    @AppStorage("theme") var currtheme: String = "Light"
     
     @State private var expanded = true
-    @State private var rating: Int?
 
     @State var player: AVPlayer
         
@@ -78,11 +75,6 @@ struct SwipeView: View {
         NavigationStack {
             VStack (spacing: 10) {
                 VideoPlayer(player: player)
-                    .clipShape(
-                        .rect(
-                            topLeadingRadius: 25, topTrailingRadius: 25
-                        )
-                    )
                     .background(.black)
                     .clipped()
                     .aspectRatio(16/9, contentMode: .fit)
@@ -122,23 +114,6 @@ struct SwipeView: View {
                             }
                         }
                         .padding(.trailing)
-                        
-                        if expanded {
-                            HStack(spacing: 5) {
-                                ForEach(0..<5) { i in
-                                    Button(action: {
-                                        withAnimation {
-                                            rating = rating == i ? nil : i
-                                        }
-                                    }) {
-                                        Image(systemName: rating ?? -1 >= i ? "star.fill" : "star")
-                                    }
-                                }
-                            }
-                            .foregroundStyle(.blue.opacity(0.7))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
-                        }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }

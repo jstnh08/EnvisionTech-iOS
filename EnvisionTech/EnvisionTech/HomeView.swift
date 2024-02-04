@@ -17,9 +17,8 @@ struct Tab: Identifiable {
 
 var allTabs = [
     Tab(page: AnyView(HomePageView()), icon: "house", name: "Home"),
-    Tab(page: AnyView(BlogView()), icon: "message", name: "Forum"),
-    Tab(page: AnyView(CourseListView()), icon: "book", name: "Courses"),
-//    Tab(page: AnyView(SettingsView()), icon: "person.crop.circle", name: "Profile"),
+    Tab(page: AnyView(CommentView()), icon: "message", name: "Forum"),
+    Tab(page: AnyView(SettingsView()), icon: "person.crop.circle", name: "Profile"),
 ]
 
 struct HomeView: View {
@@ -69,6 +68,11 @@ struct HomeView: View {
         .padding(.bottom, -15)
         .background(.ultraThinMaterial)
     }
+}
+
+struct CourseBody: Decodable {
+    var name: String
+    var icon: String
 }
 
 #Preview {

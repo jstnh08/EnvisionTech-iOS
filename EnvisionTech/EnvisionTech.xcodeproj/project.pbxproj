@@ -27,7 +27,6 @@
 		D0D4AD162B4A91E500A3B8C6 /* popop.mov in Resources */ = {isa = PBXBuildFile; fileRef = D0D4AD152B4A91E500A3B8C6 /* popop.mov */; };
 		D0E199442B2D564E00DA5BBD /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E199432B2D564E00DA5BBD /* SettingsView.swift */; };
 		D0E199462B2FB88400DA5BBD /* BlogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E199452B2FB88300DA5BBD /* BlogView.swift */; };
-		D0F7C7A62B587F2D00E9378B /* CourseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F7C7A52B587F2D00E9378B /* CourseListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,7 +51,6 @@
 		D0D4AD152B4A91E500A3B8C6 /* popop.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; name = popop.mov; path = ../../../../Downloads/popop.mov; sourceTree = "<group>"; };
 		D0E199432B2D564E00DA5BBD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		D0E199452B2FB88300DA5BBD /* BlogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlogView.swift; sourceTree = "<group>"; };
-		D0F7C7A52B587F2D00E9378B /* CourseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +83,6 @@
 		D04B0C002B15C2E40080965E /* EnvisionTech */ = {
 			isa = PBXGroup;
 			children = (
-				D0F7C7A52B587F2D00E9378B /* CourseListView.swift */,
 				D0D4AD0E2B4A8A6400A3B8C6 /* Resources */,
 				D00396FC2B18212A00BAE2E8 /* VideoView.swift */,
 				D04B0C012B15C2E40080965E /* EnvisionTechApp.swift */,
@@ -206,7 +203,6 @@
 				D03178012B5853EF0023AA40 /* HomePageView.swift in Sources */,
 				D024E4CF2B1F083D00CFEA87 /* HomeView.swift in Sources */,
 				D048DC462B3F50D8004ABC17 /* WebScraperService.swift in Sources */,
-				D0F7C7A62B587F2D00E9378B /* CourseListView.swift in Sources */,
 				D061EBEF2B53533D00894F40 /* AboutUsView.swift in Sources */,
 				D048DC4A2B3FAD48004ABC17 /* CommentView.swift in Sources */,
 				D04B0C022B15C2E40080965E /* EnvisionTechApp.swift in Sources */,
